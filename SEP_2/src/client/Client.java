@@ -12,7 +12,7 @@ public class Client {
   private static final int PORT = 9090;
 
   /**
-   * GET ALL internships
+   * GET ALL internshipss
    */
   @SuppressWarnings("unchecked")
   public List<Internship> getAll() throws IOException, ClassNotFoundException {
