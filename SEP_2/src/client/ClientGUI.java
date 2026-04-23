@@ -26,7 +26,7 @@ public class ClientGUI extends JFrame {
   private JLabel lblStatus;
 
   public ClientGUI() {
-    super("Internship Application");
+    super("Internship Applicatiion");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(1050, 600);
     setLocationRelativeTo(null);
