@@ -18,6 +18,7 @@ public class ClientGUI extends JFrame {
   private JTextField tfTitle;
   private JTextField tfDescription;
   private JTextField tfCompanyId;
+  private JTextField tfLocation;
   private JTextField tfPosition;
   private JTextField tfStartDate;
   private JTextField tfEndDate;
@@ -26,7 +27,7 @@ public class ClientGUI extends JFrame {
   private JLabel lblStatus;
 
   public ClientGUI() {
-    super("Internship Applicatiion");
+    super("Internship Application");
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(1050, 600);
     setLocationRelativeTo(null);
@@ -38,7 +39,7 @@ public class ClientGUI extends JFrame {
   private void initComponents() {
     setLayout(new BorderLayout(10, 10));
 
-    String[] columns = {"ID", "Title", "Company ID", "Position", "Status"};
+    String[] columns = {"ID", "Title", "Company ID", "Location", "Position", "Status"};
     tableModel = new DefaultTableModel(columns, 0) {
       @Override
       public boolean isCellEditable(int row, int column) {
@@ -63,6 +64,7 @@ public class ClientGUI extends JFrame {
     tfTitle = new JTextField(15);
     tfDescription = new JTextField(15);
     tfCompanyId = new JTextField(15);
+    tfLocation = new JTextField(15);
     tfPosition = new JTextField(15);
     tfStartDate = new JTextField(15);
     tfEndDate = new JTextField(15);
@@ -71,6 +73,7 @@ public class ClientGUI extends JFrame {
     addField(formPanel, gbc, 0, "Title:", tfTitle);
     addField(formPanel, gbc, 1, "Description:", tfDescription);
     addField(formPanel, gbc, 2, "Company ID:", tfCompanyId);
+    addField(formPanel, gbc, 3, "Location:", tfLocation);
     addField(formPanel, gbc, 4, "Position:", tfPosition);
     addField(formPanel, gbc, 5, "Start Date (yyyy-mm-dd):", tfStartDate);
     addField(formPanel, gbc, 6, "End Date (yyyy-mm-dd):", tfEndDate);
@@ -126,6 +129,7 @@ public class ClientGUI extends JFrame {
             internship.getId(),
             internship.getTitle(),
             internship.getCompanyId(),
+            internship.getLocation(),
             internship.getPosition(),
             internship.getStatus()
         });
@@ -143,6 +147,7 @@ public class ClientGUI extends JFrame {
       String title = tfTitle.getText().trim();
       String description = tfDescription.getText().trim();
       String companyIdText = tfCompanyId.getText().trim();
+      String location = tfLocation.getText().trim();
       String position = tfPosition.getText().trim();
       String startDateText = tfStartDate.getText().trim();
       String endDateText = tfEndDate.getText().trim();
@@ -162,6 +167,7 @@ public class ClientGUI extends JFrame {
           title,
           description,
           companyId,
+          location,
           position,
           startDate,
           endDate,
@@ -225,6 +231,7 @@ public class ClientGUI extends JFrame {
     tfTitle.setText("");
     tfDescription.setText("");
     tfCompanyId.setText("");
+    tfLocation.setText("");
     tfPosition.setText("");
     tfStartDate.setText("");
     tfEndDate.setText("");

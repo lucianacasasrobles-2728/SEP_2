@@ -11,12 +11,7 @@ public class InternshipRepository {
   public List<Internship> getAll() {
     List<Internship> internships = new ArrayList<>();
 
-
-    String sql =
-            "SELECT i.internship_id, i.title, i.description, i.company_id, " +
-                    "c.location, i.position, i.start_date, i.end_date, i.status " +
-                    "FROM internship i " +
-                    "JOIN company c ON i.company_id = c.company_id";
+    String sql = "SELECT internship_id, title, description, company_id, location, position, start_date, end_date, status FROM internship";
 
     try (Connection connection = DatabaseConnection.getConnection();
         PreparedStatement statement = connection.prepareStatement(sql);
@@ -24,16 +19,16 @@ public class InternshipRepository {
 
       while (rs.next()) {
         Internship internship = new Internship(
-                rs.getInt("internship_id"),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getInt("company_id"),
-                rs.getString("position"),
-                rs.getDate("start_date") != null ? rs.getDate("start_date").toLocalDate() : null,
-                rs.getDate("end_date") != null ? rs.getDate("end_date").toLocalDate() : null,
-                rs.getString("status")
+            rs.getInt("internship_id"),
+            rs.getString("title"),
+            rs.getString("description"),
+            rs.getInt("company_id"),
+            rs.getString("location"),
+            rs.getString("position"),
+            rs.getDate("start_date").toLocalDate(),
+            rs.getDate("end_date").toLocalDate(),
+            rs.getString("status")
         );
-
         internships.add(internship);
       }
 
@@ -45,25 +40,19 @@ public class InternshipRepository {
   }
 
   public void add(Internship internship) {
-
-    String sql =
-            "INSERT INTO internship " +
-                    "(title, description, company_id, position, start_date, end_date, status) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+    String sql = "INSERT INTO internship (title, description, company_id, location, position, start_date, end_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     try (Connection connection = DatabaseConnection.getConnection();
         PreparedStatement statement = connection.prepareStatement(sql)) {
 
-
       statement.setString(1, internship.getTitle());
       statement.setString(2, internship.getDescription());
       statement.setInt(3, internship.getCompanyId());
-      statement.setString(4, internship.getPosition());
-      statement.setDate(5,
-              internship.getStartDate() != null ? Date.valueOf(internship.getStartDate()) : null);
-      statement.setDate(6,
-              internship.getEndDate() != null ? Date.valueOf(internship.getEndDate()) : null);
-      statement.setString(7, internship.getStatus());
+      statement.setString(4, internship.getLocation());
+      statement.setString(5, internship.getPosition());
+      statement.setDate(6, Date.valueOf(internship.getStartDate()));
+      statement.setDate(7, Date.valueOf(internship.getEndDate()));
+      statement.setString(8, internship.getStatus());
 
       statement.executeUpdate();
 
