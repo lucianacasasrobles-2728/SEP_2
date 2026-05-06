@@ -1,9 +1,34 @@
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 public class Main
 {
-  public static void main(String[] args)
-  {
+
+  private static final String URL = "jdbc:postgresql://localhost:5432/internship";
+  private static final String USER = "postgres";
+  private static final String PASSWORD = "admin";
+
+  public static Connection getConnection() throws SQLException {
+    return DriverManager.getConnection(URL, USER, PASSWORD);
+  }
+
+  public static void main(String[] args) throws SQLException {
+
+    try {
+      Connection conn = getConnection();
+
+      if (conn != null) {
+        System.out.println("Connected to PostgreSQL");
+      }
+
+    } catch (SQLException e) {
+      System.out.println("Connection failed");
+      e.printStackTrace();
+    }
     //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
     // to see how IntelliJ IDEA suggests fixing it.
     System.out.printf("Hello and welcome!");

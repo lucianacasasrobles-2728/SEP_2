@@ -15,8 +15,8 @@ public class Internship implements Serializable {
   private String status;
 
   public Internship(int id, String title, String description, int companyId,
-      String location, String position,
-      LocalDate startDate, LocalDate endDate, String status) {
+      String location,
+                    LocalDate startDate, LocalDate endDate, String status) {
     this.id = id;
     this.title = title;
     this.description = description;

@@ -168,8 +168,7 @@ public class ClientGUI extends JFrame {
           description,
           companyId,
           location,
-          position,
-          startDate,
+              startDate,
           endDate,
           status
       );
