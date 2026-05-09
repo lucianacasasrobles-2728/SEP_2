@@ -54,5 +54,4 @@ public class Internship implements Serializable {
 
   public String getStatus() { return status; }
   public void setStatus(String status) { this.status = status; }
-  //NEW COMMENT
 }
