@@ -23,15 +23,13 @@ public class ClientHandler implements Runnable {
     ) {
       Object commandObj = in.readObject();
 
-      if (!(commandObj instanceof String)) {
+      if (!(commandObj instanceof String command)) {
         out.writeObject("ERROR");
         out.flush();
         return;
       }
 
-      String command = (String) commandObj;
-
-      switch (command) {
+        switch (command) {
         case "GET_ALL":
           out.writeObject(repository.getAll());
           out.flush();
