@@ -1,5 +1,6 @@
 package server;
 
+import model.Application;
 import model.Internship;
 
 import java.io.*;
@@ -9,21 +10,33 @@ public class ClientHandler implements Runnable {
 
   private final Socket socket;
   private final InternshipRepository repository;
+  private final ApplicationRepository applicationRepository;
 
-  public ClientHandler(Socket socket, InternshipRepository repository) {
+  public ClientHandler(
+      Socket socket,
+      InternshipRepository repository,
+      ApplicationRepository applicationRepository
+  ) {
     this.socket = socket;
     this.repository = repository;
+    this.applicationRepository = applicationRepository;
   }
 
   @Override
   public void run() {
+
     try (
-        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-        ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+        ObjectOutputStream out =
+            new ObjectOutputStream(socket.getOutputStream());
+
+        ObjectInputStream in =
+            new ObjectInputStream(socket.getInputStream())
     ) {
+
       Object commandObj = in.readObject();
 
       if (!(commandObj instanceof String)) {
+
         out.writeObject("ERROR");
         out.flush();
         return;
@@ -32,45 +45,92 @@ public class ClientHandler implements Runnable {
       String command = (String) commandObj;
 
       switch (command) {
+
         case "GET_ALL":
+
           out.writeObject(repository.getAll());
           out.flush();
           break;
 
         case "ADD":
+
           Object addObj = in.readObject();
+
           if (addObj instanceof Internship internship) {
+
             repository.add(internship);
             out.writeObject("OK");
+
           } else {
+
             out.writeObject("ERROR");
           }
+
           out.flush();
           break;
 
         case "DELETE":
+
           Object deleteObj = in.readObject();
+
           if (deleteObj instanceof Integer id) {
+
             boolean removed = repository.delete(id);
-            out.writeObject(removed ? "OK" : "NOT_FOUND");
+
+            out.writeObject(
+                removed ? "OK" : "NOT_FOUND"
+            );
+
           } else {
+
             out.writeObject("ERROR");
           }
+
+          out.flush();
+          break;
+
+        case "APPLY":
+
+          Object applyObj = in.readObject();
+
+          if (applyObj instanceof Application application) {
+
+            applicationRepository.addApplication(application);
+
+            out.writeObject("OK");
+
+          } else {
+
+            out.writeObject("ERROR");
+          }
+
           out.flush();
           break;
 
         default:
+
           out.writeObject("ERROR");
           out.flush();
       }
 
     } catch (IOException | ClassNotFoundException e) {
-      System.err.println("ClientHandler error: " + e.getMessage());
+
+      System.err.println(
+          "ClientHandler error: " + e.getMessage()
+      );
+
     } finally {
+
       try {
+
         socket.close();
+
       } catch (IOException e) {
-        System.err.println("Could not close socket: " + e.getMessage());
+
+        System.err.println(
+            "Could not close socket: "
+                + e.getMessage()
+        );
       }
     }
   }

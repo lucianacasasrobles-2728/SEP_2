@@ -1,5 +1,6 @@
 package client;
 
+import model.Application;
 import model.Internship;
 
 import java.io.*;
@@ -11,9 +12,6 @@ public class Client {
   private static final String HOST = "localhost";
   private static final int PORT = 9090;
 
-  /**
-   * GET ALL internships
-   */
   @SuppressWarnings("unchecked")
   public List<Internship> getAll() throws IOException, ClassNotFoundException {
     try (
@@ -21,18 +19,13 @@ public class Client {
         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
     ) {
-      // Send command
       out.writeObject("GET_ALL");
       out.flush();
 
-      // Receive response
       return (List<Internship>) in.readObject();
     }
   }
 
-  /**
-   * ADD internship
-   */
   public boolean add(Internship internship) throws IOException, ClassNotFoundException {
     try (
         Socket socket = new Socket(HOST, PORT);
@@ -48,9 +41,6 @@ public class Client {
     }
   }
 
-  /**
-   * DELETE internship by ID
-   */
   public boolean delete(int id) throws IOException, ClassNotFoundException {
     try (
         Socket socket = new Socket(HOST, PORT);
@@ -65,5 +55,19 @@ public class Client {
       return "OK".equals(response);
     }
   }
-}
 
+  public boolean apply(Application application) throws IOException, ClassNotFoundException {
+    try (
+        Socket socket = new Socket(HOST, PORT);
+        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+    ) {
+      out.writeObject("APPLY");
+      out.writeObject(application);
+      out.flush();
+
+      String response = (String) in.readObject();
+      return "OK".equals(response);
+    }
+  }
+}

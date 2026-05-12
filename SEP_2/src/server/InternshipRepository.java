@@ -16,12 +16,7 @@ public class InternshipRepository {
             SELECT internship_id,
                    title,
                    description,
-                   company_id,
-                   location,
-                   position,
-                   start_date,
-                   end_date,
-                   status
+                   company_id
             FROM internship
             """;
 
@@ -36,11 +31,11 @@ public class InternshipRepository {
             rs.getString("title"),
             rs.getString("description"),
             rs.getInt("company_id"),
-            rs.getString("location"),
-            rs.getString("position"),
-            rs.getDate("start_date").toLocalDate(),
-            rs.getDate("end_date").toLocalDate(),
-            rs.getString("status")
+            "",
+            "",
+            null,
+            null,
+            ""
         );
 
         internships.add(internship);
@@ -50,6 +45,8 @@ public class InternshipRepository {
       e.printStackTrace();
     }
 
+    System.out.println("Internships found in database: " + internships.size());
+
     return internships;
   }
 
@@ -57,8 +54,8 @@ public class InternshipRepository {
 
     String sql = """
             INSERT INTO internship
-            (title, description, company_id, location, position, start_date, end_date, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (title, description, company_id)
+            VALUES (?, ?, ?)
             """;
 
     try (Connection connection = DatabaseConnection.getConnection();
@@ -67,11 +64,6 @@ public class InternshipRepository {
       statement.setString(1, internship.getTitle());
       statement.setString(2, internship.getDescription());
       statement.setInt(3, internship.getCompanyId());
-      statement.setString(4, internship.getLocation());
-      statement.setString(5, internship.getPosition());
-      statement.setDate(6, Date.valueOf(internship.getStartDate()));
-      statement.setDate(7, Date.valueOf(internship.getEndDate()));
-      statement.setString(8, internship.getStatus());
 
       statement.executeUpdate();
 

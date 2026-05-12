@@ -8,11 +8,13 @@ public class Student {
   private String password;
   private String cv;
 
-  public Student(int studentId,
+  public Student(
+      int studentId,
       String name,
       String email,
       String password,
-      String cv) {
+      String cv
+  ) {
 
     this.studentId = studentId;
     this.name = name;
@@ -25,6 +27,10 @@ public class Student {
 
     return this.email.equals(email)
         && this.password.equals(password);
+  }
+
+  public void logout() {
+    System.out.println(name + " logged out.");
   }
 
   public int getStudentId() {
@@ -69,6 +75,10 @@ public class Student {
 
   public void confirmApplication() {
 
+  }
+
+  public void applyForInternship() {
+    System.out.println(name + " applied for internship.");
   }
 
   public void receiveNotification() {
