@@ -12,30 +12,37 @@ public class InternshipRepository {
 
     List<Internship> internships = new ArrayList<>();
 
+    // ✅ JOIN aby sme získali aj location z company
     String sql = """
-            SELECT internship_id,
-                   title,
-                   description,
-                   company_id
-            FROM internship
-            """;
+        SELECT i.internship_id,
+               i.title,
+               i.description,
+               i.company_id,
+               c.location,
+               i.position,
+               i.start_date,
+               i.end_date,
+               i.status
+        FROM internship i
+        JOIN company c ON i.company_id = c.company_id
+        """;
 
     try (Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql);
-        ResultSet rs = statement.executeQuery()) {
+         PreparedStatement statement = connection.prepareStatement(sql);
+         ResultSet rs = statement.executeQuery()) {
 
       while (rs.next()) {
 
         Internship internship = new Internship(
-            rs.getInt("internship_id"),
-            rs.getString("title"),
-            rs.getString("description"),
-            rs.getInt("company_id"),
-            "",
-            "",
-            null,
-            null,
-            ""
+                rs.getInt("internship_id"),
+                rs.getString("title"),
+                rs.getString("description"),
+                rs.getInt("company_id"),
+                rs.getString("location"),
+                rs.getString("position"),
+                rs.getDate("start_date").toLocalDate(),
+                rs.getDate("end_date").toLocalDate(),
+                rs.getString("status")
         );
 
         internships.add(internship);
@@ -45,25 +52,30 @@ public class InternshipRepository {
       e.printStackTrace();
     }
 
-    System.out.println("Internships found in database: " + internships.size());
+    System.out.println("Internships loaded: " + internships.size());
 
     return internships;
   }
 
+  // ✅ OPRAVENÝ INSERT
   public void add(Internship internship) {
 
     String sql = """
-            INSERT INTO internship
-            (title, description, company_id)
-            VALUES (?, ?, ?)
-            """;
+        INSERT INTO internship
+        (title, description, company_id, position, start_date, end_date, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """;
 
     try (Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql)) {
+         PreparedStatement statement = connection.prepareStatement(sql)) {
 
       statement.setString(1, internship.getTitle());
       statement.setString(2, internship.getDescription());
       statement.setInt(3, internship.getCompanyId());
+      statement.setString(4, internship.getPosition());
+      statement.setDate(5, Date.valueOf(internship.getStartDate()));
+      statement.setDate(6, Date.valueOf(internship.getEndDate()));
+      statement.setString(7, internship.getStatus());
 
       statement.executeUpdate();
 
@@ -77,7 +89,7 @@ public class InternshipRepository {
     String sql = "DELETE FROM internship WHERE internship_id = ?";
 
     try (Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql)) {
+         PreparedStatement statement = connection.prepareStatement(sql)) {
 
       statement.setInt(1, id);
 
