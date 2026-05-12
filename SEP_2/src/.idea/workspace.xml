@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c132f1fe-30cf-467e-b4e1-6e985b261d0d" name="Changes" comment="connected ApplicationRepository with SQL" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Merge.Settings">
+    <option name="BRANCH" value="origin/kika-branch" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/../.." value="lucy-branch" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "lucianacasasrobles-2728"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/lucianacasasrobles-2728/SEP_2.git",
+    "accountId": "3616b260-66f9-4f55-b7c5-a356c2208acd"
+  }
+}]]></component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 7
+}]]></component>
+  <component name="ProjectId" id="3Db5SO32GVql6lNJ7wa1Vfaa0Go" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ClientGUI.executor": "Run",
+    "Application.CompanyGUI.executor": "Run",
+    "Application.Main.executor": "Run",
+    "Application.Server.executor": "Run",
+    "Application.StudentGUI.executor": "Run",
+    "Downloaded.Files.Path.Enabled": "false",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Repository.Attach.Annotations": "false",
+    "Repository.Attach.JavaDocs": "false",
+    "Repository.Attach.Sources": "false",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/lucia/OneDrive/Escritorio/SEP_2-main/SEP_2/SEP_2/src",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.2"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c132f1fe-30cf-467e-b4e1-6e985b261d0d" name="Changes" comment="" />
+      <created>1778537928022</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1778537928022</updated>
+    </task>
+    <task id="LOCAL-00001" summary="added CompanyGui and Company">
+      <option name="closed" value="true" />
+      <created>1778538548017</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1778538548017</updated>
+    </task>
+    <task id="LOCAL-00002" summary="made changes">
+      <option name="closed" value="true" />
+      <created>1778538944113</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1778538944113</updated>
+    </task>
+    <task id="LOCAL-00003" summary="made changes in the constructor">
+      <option name="closed" value="true" />
+      <created>1778572340293</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1778572340293</updated>
+    </task>
+    <task id="LOCAL-00004" summary="created a new class">
+      <option name="closed" value="true" />
+      <created>1778572496910</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1778572496910</updated>
+    </task>
+    <task id="LOCAL-00005" summary="created a new class">
+      <option name="closed" value="true" />
+      <created>1778572737439</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1778572737439</updated>
+    </task>
+    <task id="LOCAL-00006" summary="made changes">
+      <option name="closed" value="true" />
+      <created>1778572856623</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1778572856623</updated>
+    </task>
+    <task id="LOCAL-00007" summary="made changes">
+      <option name="closed" value="true" />
+      <created>1778575256378</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1778575256378</updated>
+    </task>
+    <task id="LOCAL-00008" summary="added status for CompanyGUI">
+      <option name="closed" value="true" />
+      <created>1778577468516</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1778577468516</updated>
+    </task>
+    <task id="LOCAL-00009" summary="connected ApplicationRepository with SQL">
+      <option name="closed" value="true" />
+      <created>1778578987503</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1778578987503</updated>
+    </task>
+    <task id="LOCAL-00010" summary="connected ApplicationRepository with SQL">
+      <option name="closed" value="true" />
+      <created>1778585429943</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1778585429943</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="added CompanyGui and Company" />
+    <MESSAGE value="made changes in the constructor" />
+    <MESSAGE value="created a new class" />
+    <MESSAGE value="made changes" />
+    <MESSAGE value="added status for CompanyGUI" />
+    <MESSAGE value="connected ApplicationRepository with SQL" />
+    <option name="LAST_COMMIT_MESSAGE" value="connected ApplicationRepository with SQL" />
+  </component>
+</project>
