@@ -2,61 +2,157 @@ package server;
 
 import model.Application;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ApplicationRepository {
 
-  private List<Application> applications;
-
-  public ApplicationRepository() {
-    applications = new ArrayList<>();
-  }
-
   public void addApplication(Application application) {
-    applications.add(application);
-    System.out.println("Application added.");
+
+    String sql = """
+        INSERT INTO applications
+        (student_id, internship_id, status, application_date)
+        VALUES (?, ?, ?, ?)
+        """;
+
+    try (Connection connection = DatabaseConnection.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+
+      statement.setInt(1, application.getStudentId());
+      statement.setInt(2, application.getInternshipId());
+      statement.setString(3, application.getStatus());
+      statement.setDate(4, Date.valueOf(application.getApplicationDate()));
+
+      statement.executeUpdate();
+
+      System.out.println("Application saved in database.");
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   public List<Application> getAllApplications() {
+
+    List<Application> applications = new ArrayList<>();
+
+    String sql = """
+        SELECT application_id,
+               student_id,
+               internship_id,
+               status,
+               application_date
+        FROM applications
+        """;
+
+    try (Connection connection = DatabaseConnection.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql);
+        ResultSet rs = statement.executeQuery()) {
+
+      while (rs.next()) {
+
+        Application application = new Application(
+            rs.getInt("application_id"),
+            rs.getInt("student_id"),
+            rs.getInt("internship_id"),
+            rs.getString("status"),
+            rs.getDate("application_date").toLocalDate()
+        );
+
+        applications.add(application);
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
     return applications;
   }
 
   public List<Application> getApplicationsByStudent(int studentId) {
 
-    List<Application> result = new ArrayList<>();
+    List<Application> applications = new ArrayList<>();
 
-    for (Application application : applications) {
+    String sql = """
+        SELECT application_id,
+               student_id,
+               internship_id,
+               status,
+               application_date
+        FROM applications
+        WHERE student_id = ?
+        """;
 
-      if (application.getStudentId() == studentId) {
-        result.add(application);
+    try (Connection connection = DatabaseConnection.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+
+      statement.setInt(1, studentId);
+
+      try (ResultSet rs = statement.executeQuery()) {
+
+        while (rs.next()) {
+
+          Application application = new Application(
+              rs.getInt("application_id"),
+              rs.getInt("student_id"),
+              rs.getInt("internship_id"),
+              rs.getString("status"),
+              rs.getDate("application_date").toLocalDate()
+          );
+
+          applications.add(application);
+        }
       }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
 
-    return result;
+    return applications;
   }
 
   public boolean updateApplicationStatus(int applicationId, String newStatus) {
 
-    for (Application application : applications) {
+    String sql = """
+        UPDATE applications
+        SET status = ?
+        WHERE application_id = ?
+        """;
 
-      if (application.getApplicationId() == applicationId) {
-        application.setStatus(newStatus);
-        System.out.println("Status updated to " + newStatus);
-        return true;
-      }
+    try (Connection connection = DatabaseConnection.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+
+      statement.setString(1, newStatus);
+      statement.setInt(2, applicationId);
+
+      int rows = statement.executeUpdate();
+
+      return rows > 0;
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return false;
     }
-
-    System.out.println("Application not found.");
-    return false;
   }
 
   public void deleteApplication(int applicationId) {
 
-    applications.removeIf(
-        application -> application.getApplicationId() == applicationId
-    );
+    String sql = """
+        DELETE FROM applications
+        WHERE application_id = ?
+        """;
 
-    System.out.println("Application deleted.");
+    try (Connection connection = DatabaseConnection.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+
+      statement.setInt(1, applicationId);
+      statement.executeUpdate();
+
+      System.out.println("Application deleted.");
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 }
