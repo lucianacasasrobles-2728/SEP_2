@@ -29,6 +29,7 @@ public class Internship implements Serializable {
     this.endDate = endDate;
     this.status = status;
   }
+  //WANT TO INSERT NEW C
 
   public int getId() {
     return id;
