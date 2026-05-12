@@ -17,6 +17,7 @@ public class InternshipRepository {
                    title,
                    description,
                    company_id,
+                   location,
                    position,
                    start_date,
                    end_date,
@@ -25,20 +26,21 @@ public class InternshipRepository {
             """;
 
     try (Connection connection = DatabaseConnection.getConnection();
-         PreparedStatement statement = connection.prepareStatement(sql);
-         ResultSet rs = statement.executeQuery()) {
+        PreparedStatement statement = connection.prepareStatement(sql);
+        ResultSet rs = statement.executeQuery()) {
 
       while (rs.next()) {
 
         Internship internship = new Internship(
-                rs.getInt("internship_id"),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getInt("company_id"),
-                rs.getString("position"),
-                rs.getDate("start_date").toLocalDate(),
-                rs.getDate("end_date").toLocalDate(),
-                rs.getString("status")
+            rs.getInt("internship_id"),
+            rs.getString("title"),
+            rs.getString("description"),
+            rs.getInt("company_id"),
+            rs.getString("location"),
+            rs.getString("position"),
+            rs.getDate("start_date").toLocalDate(),
+            rs.getDate("end_date").toLocalDate(),
+            rs.getString("status")
         );
 
         internships.add(internship);
@@ -55,20 +57,21 @@ public class InternshipRepository {
 
     String sql = """
             INSERT INTO internship
-            (title, description, company_id, position, start_date, end_date, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            (title, description, company_id, location, position, start_date, end_date, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
     try (Connection connection = DatabaseConnection.getConnection();
-         PreparedStatement statement = connection.prepareStatement(sql)) {
+        PreparedStatement statement = connection.prepareStatement(sql)) {
 
       statement.setString(1, internship.getTitle());
       statement.setString(2, internship.getDescription());
       statement.setInt(3, internship.getCompanyId());
-      statement.setString(4, internship.getPosition());
-      statement.setDate(5, Date.valueOf(internship.getStartDate()));
-      statement.setDate(6, Date.valueOf(internship.getEndDate()));
-      statement.setString(7, internship.getStatus());
+      statement.setString(4, internship.getLocation());
+      statement.setString(5, internship.getPosition());
+      statement.setDate(6, Date.valueOf(internship.getStartDate()));
+      statement.setDate(7, Date.valueOf(internship.getEndDate()));
+      statement.setString(8, internship.getStatus());
 
       statement.executeUpdate();
 
@@ -82,7 +85,7 @@ public class InternshipRepository {
     String sql = "DELETE FROM internship WHERE internship_id = ?";
 
     try (Connection connection = DatabaseConnection.getConnection();
-         PreparedStatement statement = connection.prepareStatement(sql)) {
+        PreparedStatement statement = connection.prepareStatement(sql)) {
 
       statement.setInt(1, id);
 
