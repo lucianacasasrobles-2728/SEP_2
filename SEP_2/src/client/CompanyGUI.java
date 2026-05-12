@@ -38,11 +38,11 @@ public class CompanyGUI extends JFrame {
     super("Company Internship Portal");
 
     currentCompany = new Company(
-        1,
-        "Trifork",
-        "company@email.com",
-        "1234",
-        "Software company"
+            1,
+            "Trifork",
+            "company@email.com",
+            "1234",
+            "Software company"
     );
 
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -93,7 +93,7 @@ public class CompanyGUI extends JFrame {
 
     add(new JScrollPane(table), BorderLayout.CENTER);
 
-    // FORM PANEL
+    // ✅ FORM PANEL (OPRAVENÝ)
     JPanel formPanel = new JPanel(new GridBagLayout());
     formPanel.setBorder(BorderFactory.createTitledBorder("Add Internship"));
 
@@ -124,6 +124,7 @@ public class CompanyGUI extends JFrame {
     gbc.gridx = 0;
     gbc.gridy = 8;
     gbc.gridwidth = 2;
+    gbc.weightx = 1.0;
     gbc.fill = GridBagConstraints.HORIZONTAL;
     formPanel.add(btnAdd, gbc);
 
@@ -157,6 +158,24 @@ public class CompanyGUI extends JFrame {
     btnDelete.addActionListener(e -> deleteSelected());
   }
 
+  // ✅ TU JE HLAVNÝ FIX
+  private void addField(JPanel panel, GridBagConstraints gbc, int row,
+                        String labelText, JTextField textField) {
+
+    // LABEL
+    gbc.gridx = 0;
+    gbc.gridy = row;
+    gbc.weightx = 0;
+    gbc.fill = GridBagConstraints.NONE;
+    panel.add(new JLabel(labelText), gbc);
+
+    // TEXT FIELD
+    gbc.gridx = 1;
+    gbc.weightx = 1.0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
+    panel.add(textField, gbc);
+  }
+
   private void loginCompany() {
     String email = tfEmail.getText().trim();
     String password = new String(pfPassword.getPassword());
@@ -185,18 +204,6 @@ public class CompanyGUI extends JFrame {
     setStatus("Logged out.", false);
   }
 
-  private void addField(JPanel panel, GridBagConstraints gbc, int row,
-      String labelText, JTextField textField) {
-    gbc.gridx = 0;
-    gbc.gridy = row;
-    gbc.gridwidth = 1;
-    gbc.fill = GridBagConstraints.NONE;
-    panel.add(new JLabel(labelText), gbc);
-
-    gbc.gridx = 1;
-    panel.add(textField, gbc);
-  }
-
   private void loadInternships() {
     try {
       List<Internship> internships = client.getAll();
@@ -204,12 +211,12 @@ public class CompanyGUI extends JFrame {
 
       for (Internship internship : internships) {
         tableModel.addRow(new Object[]{
-            internship.getId(),
-            internship.getTitle(),
-            internship.getCompanyId(),
-            internship.getLocation(),
-            internship.getPosition(),
-            internship.getStatus()
+                internship.getId(),
+                internship.getTitle(),
+                internship.getCompanyId(),
+                internship.getLocation(),
+                internship.getPosition(),
+                internship.getStatus()
         });
       }
 
@@ -228,15 +235,15 @@ public class CompanyGUI extends JFrame {
 
     try {
       Internship internship = new Internship(
-          0,
-          tfTitle.getText().trim(),
-          tfDescription.getText().trim(),
-          Integer.parseInt(tfCompanyId.getText().trim()),
-          tfLocation.getText().trim(),
-          tfPosition.getText().trim(),
-          LocalDate.parse(tfStartDate.getText().trim()),
-          LocalDate.parse(tfEndDate.getText().trim()),
-          tfStatus.getText().trim()
+              0,
+              tfTitle.getText().trim(),
+              tfDescription.getText().trim(),
+              Integer.parseInt(tfCompanyId.getText().trim()),
+              tfLocation.getText().trim(),
+              tfPosition.getText().trim(),
+              LocalDate.parse(tfStartDate.getText().trim()),
+              LocalDate.parse(tfEndDate.getText().trim()),
+              tfStatus.getText().trim()
       );
 
       boolean success = client.add(internship);
