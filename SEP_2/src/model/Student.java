@@ -1,69 +1,87 @@
 package model;
 
-public class Student
-{
-    private int studentId;
-    private String name;
-    private String email;
-    private String cv;
+public class Student {
 
-    public Student(int studentId, String name, String email, String cv){
-        this.studentId = studentId;
-        this.name = name;
-        this.email = email;
-        this.cv = cv;
-    }
-//hk
-    public int getStudentId()
-    {
-        return studentId;
-    }
+  private int studentId;
+  private String name;
+  private String email;
+  private String password;
+  private String cv;
 
-    public String getName()
-    {
-        return name;
-    }
-    public String getEmail(){
-        return email;
-    }
+  public Student(
+      int studentId,
+      String name,
+      String email,
+      String password,
+      String cv
+  ) {
 
-    public String getCv(){
-        return cv;
+    this.studentId = studentId;
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.cv = cv;
+  }
 
-    }
+  public boolean login(String email, String password) {
 
-    public void setStudentId(int studentId)
-    {
-        this.studentId = studentId;
-    }
+    return this.email.equals(email)
+        && this.password.equals(password);
+  }
 
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+  public void logout() {
+    System.out.println(name + " logged out.");
+  }
 
-    public void setEmail(String email)
-    {
-        this.email = email;
-    }
+  public int getStudentId() {
+    return studentId;
+  }
 
-    public void setCv(String cv)
-    {
-        this.cv = cv;
-    }
-    public void browseInternships() {
-        //  Connect with UI_Client and System
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void clickApply() {
-        //  Connect with UI_Client
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public void confirmApplication() {
-        //  Connect with System and Database
-    }
+  public String getCv() {
+    return cv;
+  }
 
-    public void receiveNotification() {
-        // Connect with  UI_Client
-    }
+  public void setStudentId(int studentId) {
+    this.studentId = studentId;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setCv(String cv) {
+    this.cv = cv;
+  }
+
+  public void browseInternships() {
+
+  }
+
+  public void clickApply() {
+
+  }
+
+  public void confirmApplication() {
+
+  }
+
+  public void applyForInternship() {
+    System.out.println(name + " applied for internship.");
+  }
+
+  public void receiveNotification() {
+
+  }
 }

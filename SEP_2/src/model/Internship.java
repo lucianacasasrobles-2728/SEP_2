@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 public class Internship implements Serializable {
+
   private int id;
   private String title;
   private String description;
@@ -15,8 +16,9 @@ public class Internship implements Serializable {
   private String status;
 
   public Internship(int id, String title, String description, int companyId,
-      String location,
-                    LocalDate startDate, LocalDate endDate, String status) {
+      String location, String position,
+      LocalDate startDate, LocalDate endDate, String status) {
+
     this.id = id;
     this.title = title;
     this.description = description;
@@ -29,30 +31,75 @@ public class Internship implements Serializable {
   }
   //WANT TO INSERT NEW C
 
-  public int getId() { return id; }
-  public void setId(int id) { this.id = id; }
+  public int getId() {
+    return id;
+  }
 
-  public String getTitle() { return title; }
-  public void setTitle(String title) { this.title = title; }
+  public void setId(int id) {
+    this.id = id;
+  }
 
-  public String getDescription() { return description; }
-  public void setDescription(String description) { this.description = description; }
+  public String getTitle() {
+    return title;
+  }
 
-  public int getCompanyId() { return companyId; }
-  public void setCompanyId(int companyId) { this.companyId = companyId; }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-  public String getLocation() { return location; }
-  public void setLocation(String location) { this.location = location; }
+  public String getDescription() {
+    return description;
+  }
 
-  public String getPosition() { return position; }
-  public void setPosition(String position) { this.position = position; }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-  public LocalDate getStartDate() { return startDate; }
-  public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+  public int getCompanyId() {
+    return companyId;
+  }
 
-  public LocalDate getEndDate() { return endDate; }
-  public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+  public void setCompanyId(int companyId) {
+    this.companyId = companyId;
+  }
 
-  public String getStatus() { return status; }
-  public void setStatus(String status) { this.status = status; }
+  public String getLocation() {
+    return location;
+  }
+
+  public void setLocation(String location) {
+    this.location = location;
+  }
+
+  public String getPosition() {
+    return position;
+  }
+
+  public void setPosition(String position) {
+    this.position = position;
+  }
+
+  public LocalDate getStartDate() {
+    return startDate;
+  }
+
+  public void setStartDate(LocalDate startDate) {
+    this.startDate = startDate;
+  }
+
+  public LocalDate getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(LocalDate endDate) {
+    this.endDate = endDate;
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
 }

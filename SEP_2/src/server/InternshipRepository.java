@@ -12,17 +12,20 @@ public class InternshipRepository {
 
     List<Internship> internships = new ArrayList<>();
 
+    // ✅ JOIN aby sme získali aj location z company
     String sql = """
-            SELECT internship_id,
-                   title,
-                   description,
-                   company_id,
-                   position,
-                   start_date,
-                   end_date,
-                   status
-            FROM internship
-            """;
+        SELECT i.internship_id,
+               i.title,
+               i.description,
+               i.company_id,
+               c.location,
+               i.position,
+               i.start_date,
+               i.end_date,
+               i.status
+        FROM internship i
+        JOIN company c ON i.company_id = c.company_id
+        """;
 
     try (Connection connection = DatabaseConnection.getConnection();
          PreparedStatement statement = connection.prepareStatement(sql);
@@ -35,6 +38,7 @@ public class InternshipRepository {
                 rs.getString("title"),
                 rs.getString("description"),
                 rs.getInt("company_id"),
+                rs.getString("location"),
                 rs.getString("position"),
                 rs.getDate("start_date").toLocalDate(),
                 rs.getDate("end_date").toLocalDate(),
@@ -48,16 +52,19 @@ public class InternshipRepository {
       e.printStackTrace();
     }
 
+    System.out.println("Internships loaded: " + internships.size());
+
     return internships;
   }
 
+  // ✅ OPRAVENÝ INSERT
   public void add(Internship internship) {
 
     String sql = """
-            INSERT INTO internship
-            (title, description, company_id, position, start_date, end_date, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """;
+        INSERT INTO internship
+        (title, description, company_id, position, start_date, end_date, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """;
 
     try (Connection connection = DatabaseConnection.getConnection();
          PreparedStatement statement = connection.prepareStatement(sql)) {
