@@ -1,11 +1,13 @@
 package client;
 
+import model.Application;
 import model.Internship;
 import model.Student;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.List;
 
 public class StudentGUI extends JFrame {
@@ -13,7 +15,6 @@ public class StudentGUI extends JFrame {
   private final Client client = new Client();
 
   private Student currentStudent;
-
   private boolean loggedIn = false;
 
   private JTable table;
@@ -42,7 +43,6 @@ public class StudentGUI extends JFrame {
     setLocationRelativeTo(null);
 
     initComponents();
-
     loadInternships();
   }
 
@@ -50,7 +50,6 @@ public class StudentGUI extends JFrame {
 
     setLayout(new BorderLayout(10, 10));
 
-    // LOGIN PANEL
     JPanel loginPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     tfEmail = new JTextField(12);
@@ -63,17 +62,14 @@ public class StudentGUI extends JFrame {
 
     loginPanel.add(new JLabel("Email:"));
     loginPanel.add(tfEmail);
-
     loginPanel.add(new JLabel("Password:"));
     loginPanel.add(pfPassword);
-
     loginPanel.add(btnLogin);
     loginPanel.add(btnLogout);
     loginPanel.add(lblLoggedUser);
 
     add(loginPanel, BorderLayout.NORTH);
 
-    // TABLE
     String[] columns = {
         "ID",
         "Title",
@@ -84,7 +80,6 @@ public class StudentGUI extends JFrame {
     };
 
     tableModel = new DefaultTableModel(columns, 0) {
-
       @Override
       public boolean isCellEditable(int row, int column) {
         return false;
@@ -92,84 +87,57 @@ public class StudentGUI extends JFrame {
     };
 
     table = new JTable(tableModel);
-
     table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     table.setRowHeight(24);
 
-    JScrollPane scrollPane = new JScrollPane(table);
+    add(new JScrollPane(table), BorderLayout.CENTER);
 
-    add(scrollPane, BorderLayout.CENTER);
-
-    // BUTTON PANEL
     JButton btnRefresh = new JButton("Refresh");
     JButton btnApply = new JButton("Apply Selected");
 
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
     buttonPanel.add(btnRefresh);
     buttonPanel.add(btnApply);
 
     lblStatus = new JLabel("Ready.");
 
     JPanel bottomPanel = new JPanel(new BorderLayout());
-
     bottomPanel.add(buttonPanel, BorderLayout.WEST);
     bottomPanel.add(lblStatus, BorderLayout.EAST);
 
     add(bottomPanel, BorderLayout.SOUTH);
 
-    // ACTIONS
     btnLogin.addActionListener(e -> loginStudent());
-
     btnLogout.addActionListener(e -> logoutStudent());
-
     btnRefresh.addActionListener(e -> loadInternships());
-
-    btnApply.addActionListener(e -> applyForInternship());
+    btnApply.addActionListener(e -> applySelectedInternship());
   }
 
   private void loginStudent() {
 
     String email = tfEmail.getText().trim();
+    String password = new String(pfPassword.getPassword());
 
-    String password =
-        new String(pfPassword.getPassword());
-
-    boolean success =
-        currentStudent.login(email, password);
+    boolean success = currentStudent.login(email, password);
 
     if (success) {
-
       loggedIn = true;
-
-      lblLoggedUser.setText(
-          "Logged in as "
-              + currentStudent.getName()
-      );
-
+      lblLoggedUser.setText("Logged in as " + currentStudent.getName());
       setStatus("Login successful.", false);
-
     } else {
-
       loggedIn = false;
-
       lblLoggedUser.setText("Not logged in");
-
-      setStatus(
-          "Wrong email or password.",
-          true
-      );
+      setStatus("Wrong email or password.", true);
     }
   }
 
   private void logoutStudent() {
 
+    currentStudent.logout();
     loggedIn = false;
 
     tfEmail.setText("");
-
     pfPassword.setText("");
-
     lblLoggedUser.setText("Not logged in");
 
     setStatus("Logged out.", false);
@@ -178,16 +146,12 @@ public class StudentGUI extends JFrame {
   private void loadInternships() {
 
     try {
-
-      List<Internship> internships =
-          client.getAll();
+      List<Internship> internships = client.getAll();
 
       tableModel.setRowCount(0);
 
       for (Internship internship : internships) {
-
         tableModel.addRow(new Object[]{
-
             internship.getId(),
             internship.getTitle(),
             internship.getCompanyId(),
@@ -197,80 +161,60 @@ public class StudentGUI extends JFrame {
         });
       }
 
-      setStatus(
-          internships.size()
-              + " internships loaded.",
-          false
-      );
+      setStatus(internships.size() + " internships loaded.", false);
 
     } catch (Exception e) {
-
-      setStatus(
-          "Error loading internships.",
-          true
-      );
+      setStatus("Error loading internships: " + e.getMessage(), true);
     }
   }
 
-  private void applyForInternship() {
+  private void applySelectedInternship() {
 
     if (!loggedIn) {
-
-      setStatus(
-          "You must login first.",
-          true
-      );
-
+      setStatus("You must login first.", true);
       return;
     }
 
-    int selectedRow =
-        table.getSelectedRow();
+    int selectedRow = table.getSelectedRow();
 
     if (selectedRow == -1) {
-
-      setStatus(
-          "Please select an internship.",
-          true
-      );
-
+      setStatus("Please select an internship.", true);
       return;
     }
 
-    int internshipId =
-        (int) tableModel.getValueAt(selectedRow, 0);
+    int internshipId = (int) tableModel.getValueAt(selectedRow, 0);
 
-    currentStudent.clickApply();
-
-    currentStudent.confirmApplication();
-
-    setStatus(
-        currentStudent.getName()
-            + " applied for internship ID "
-            + internshipId,
-        false
+    Application application = new Application(
+        0,
+        currentStudent.getStudentId(),
+        internshipId,
+        "Pending",
+        LocalDate.now()
     );
+
+    try {
+      boolean success = client.apply(application);
+
+      if (success) {
+        currentStudent.applyForInternship();
+        setStatus("Application sent successfully.", false);
+      } else {
+        setStatus("Could not send application.", true);
+      }
+
+    } catch (Exception e) {
+      setStatus("Error applying: " + e.getMessage(), true);
+    }
   }
 
-  private void setStatus(String message,
-      boolean isError) {
-
-    lblStatus.setText(message);
-
-    lblStatus.setForeground(
-        isError
-            ? Color.RED
-            : new Color(0, 128, 0)
-    );
+  private void setStatus(String message, boolean isError) {
+    lblStatus.setText(message + "   ");
+    lblStatus.setForeground(isError ? Color.RED : new Color(0, 128, 0));
   }
 
   public static void main(String[] args) {
-
     SwingUtilities.invokeLater(() -> {
-
-      StudentGUI gui =
-          new StudentGUI();
-
+      StudentGUI gui = new StudentGUI();
       gui.setVisible(true);
     });
   }

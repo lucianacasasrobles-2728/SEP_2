@@ -27,7 +27,8 @@ public class ClientGUI extends JFrame {
   private JLabel lblStatus;
 
   public ClientGUI() {
-    super("Internship Applicatiion");
+    super("Internship Application");
+
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(1050, 600);
     setLocationRelativeTo(null);
@@ -40,6 +41,7 @@ public class ClientGUI extends JFrame {
     setLayout(new BorderLayout(10, 10));
 
     String[] columns = {"ID", "Title", "Company ID", "Location", "Position", "Status"};
+
     tableModel = new DefaultTableModel(columns, 0) {
       @Override
       public boolean isCellEditable(int row, int column) {
@@ -49,10 +51,8 @@ public class ClientGUI extends JFrame {
 
     table = new JTable(tableModel);
     table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    table.getColumnModel().getColumn(0).setMaxWidth(50);
 
-    JScrollPane scrollPane = new JScrollPane(table);
-    add(scrollPane, BorderLayout.CENTER);
+    add(new JScrollPane(table), BorderLayout.CENTER);
 
     JPanel formPanel = new JPanel(new GridBagLayout());
     formPanel.setBorder(BorderFactory.createTitledBorder("Add Internship"));
@@ -75,11 +75,12 @@ public class ClientGUI extends JFrame {
     addField(formPanel, gbc, 2, "Company ID:", tfCompanyId);
     addField(formPanel, gbc, 3, "Location:", tfLocation);
     addField(formPanel, gbc, 4, "Position:", tfPosition);
-    addField(formPanel, gbc, 5, "Start Date (yyyy-mm-dd):", tfStartDate);
-    addField(formPanel, gbc, 6, "End Date (yyyy-mm-dd):", tfEndDate);
+    addField(formPanel, gbc, 5, "Start Date:", tfStartDate);
+    addField(formPanel, gbc, 6, "End Date:", tfEndDate);
     addField(formPanel, gbc, 7, "Status:", tfStatus);
 
     JButton btnAdd = new JButton("Add");
+
     gbc.gridx = 0;
     gbc.gridy = 8;
     gbc.gridwidth = 2;
@@ -108,7 +109,9 @@ public class ClientGUI extends JFrame {
     btnDelete.addActionListener(e -> deleteSelected());
   }
 
-  private void addField(JPanel panel, GridBagConstraints gbc, int row, String labelText, JTextField textField) {
+  private void addField(JPanel panel, GridBagConstraints gbc, int row,
+      String labelText, JTextField textField) {
+
     gbc.gridx = 0;
     gbc.gridy = row;
     gbc.gridwidth = 1;
@@ -153,14 +156,22 @@ public class ClientGUI extends JFrame {
       String endDateText = tfEndDate.getText().trim();
       String status = tfStatus.getText().trim();
 
-      if (title.isEmpty() || companyIdText.isEmpty() || position.isEmpty() || status.isEmpty()) {
+      if (title.isEmpty() || companyIdText.isEmpty()
+          || position.isEmpty() || status.isEmpty()) {
+
         setStatus("Title, company ID, position, and status are required.", true);
         return;
       }
 
       int companyId = Integer.parseInt(companyIdText);
-      LocalDate startDate = startDateText.isEmpty() ? null : LocalDate.parse(startDateText);
-      LocalDate endDate = endDateText.isEmpty() ? null : LocalDate.parse(endDateText);
+
+      LocalDate startDate = startDateText.isEmpty()
+          ? null
+          : LocalDate.parse(startDateText);
+
+      LocalDate endDate = endDateText.isEmpty()
+          ? null
+          : LocalDate.parse(endDateText);
 
       Internship internship = new Internship(
           0,
@@ -168,7 +179,8 @@ public class ClientGUI extends JFrame {
           description,
           companyId,
           location,
-              startDate,
+          position,
+          startDate,
           endDate,
           status
       );
@@ -185,6 +197,7 @@ public class ClientGUI extends JFrame {
 
     } catch (NumberFormatException e) {
       setStatus("Company ID must be a number.", true);
+
     } catch (Exception e) {
       setStatus("Error adding internship: " + e.getMessage(), true);
     }
@@ -200,25 +213,14 @@ public class ClientGUI extends JFrame {
 
     int id = (int) tableModel.getValueAt(selectedRow, 0);
 
-    int confirm = JOptionPane.showConfirmDialog(
-        this,
-        "Are you sure you want to delete internship ID " + id + "?",
-        "Confirm Delete",
-        JOptionPane.YES_NO_OPTION
-    );
-
-    if (confirm != JOptionPane.YES_OPTION) {
-      return;
-    }
-
     try {
       boolean success = client.delete(id);
 
       if (success) {
-        setStatus("Internship ID " + id + " deleted.", false);
+        setStatus("Internship deleted.", false);
         loadData();
       } else {
-        setStatus("Internship ID " + id + " not found.", true);
+        setStatus("Internship not found.", true);
       }
 
     } catch (Exception e) {
@@ -238,7 +240,7 @@ public class ClientGUI extends JFrame {
   }
 
   private void setStatus(String message, boolean isError) {
-    lblStatus.setText(message + "   ");
+    lblStatus.setText(message);
     lblStatus.setForeground(isError ? Color.RED : new Color(0, 128, 0));
   }
 
