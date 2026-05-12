@@ -1,5 +1,6 @@
 package client;
 
+import model.Application;
 import model.Company;
 import model.Internship;
 
@@ -46,7 +47,7 @@ public class CompanyGUI extends JFrame {
     );
 
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    setSize(900, 600);
+    setSize(950, 600);
     setLocationRelativeTo(null);
 
     initComponents();
@@ -56,7 +57,6 @@ public class CompanyGUI extends JFrame {
   private void initComponents() {
     setLayout(new BorderLayout(10, 10));
 
-    // LOGIN PANEL
     JPanel loginPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     tfEmail = new JTextField(12);
@@ -77,8 +77,9 @@ public class CompanyGUI extends JFrame {
 
     add(loginPanel, BorderLayout.NORTH);
 
-    // TABLE
-    String[] columns = {"ID", "Title", "Company ID", "Location", "Position", "Status"};
+    String[] columns = {
+        "ID", "Title", "Company ID", "Location", "Position", "Status"
+    };
 
     tableModel = new DefaultTableModel(columns, 0) {
       @Override
@@ -93,7 +94,6 @@ public class CompanyGUI extends JFrame {
 
     add(new JScrollPane(table), BorderLayout.CENTER);
 
-    // FORM PANEL
     JPanel formPanel = new JPanel(new GridBagLayout());
     formPanel.setBorder(BorderFactory.createTitledBorder("Add Internship"));
 
@@ -133,13 +133,16 @@ public class CompanyGUI extends JFrame {
 
     add(rightPanel, BorderLayout.EAST);
 
-    // BUTTON PANEL
     JButton btnRefresh = new JButton("Refresh");
     JButton btnDelete = new JButton("Delete Selected");
+    JButton btnViewApplications = new JButton("View Applications");
+    JButton btnUpdateStatus = new JButton("Update Application Status");
 
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     buttonPanel.add(btnRefresh);
     buttonPanel.add(btnDelete);
+    buttonPanel.add(btnViewApplications);
+    buttonPanel.add(btnUpdateStatus);
 
     lblStatus = new JLabel("Ready.");
 
@@ -149,12 +152,13 @@ public class CompanyGUI extends JFrame {
 
     add(bottomPanel, BorderLayout.SOUTH);
 
-    // ACTIONS
     btnLogin.addActionListener(e -> loginCompany());
     btnLogout.addActionListener(e -> logoutCompany());
     btnRefresh.addActionListener(e -> loadInternships());
     btnAdd.addActionListener(e -> addInternship());
     btnDelete.addActionListener(e -> deleteSelected());
+    btnViewApplications.addActionListener(e -> viewApplications());
+    btnUpdateStatus.addActionListener(e -> updateApplicationStatus());
   }
 
   private void loginCompany() {
@@ -187,6 +191,7 @@ public class CompanyGUI extends JFrame {
 
   private void addField(JPanel panel, GridBagConstraints gbc, int row,
       String labelText, JTextField textField) {
+
     gbc.gridx = 0;
     gbc.gridy = row;
     gbc.gridwidth = 1;
@@ -283,6 +288,114 @@ public class CompanyGUI extends JFrame {
 
     } catch (Exception e) {
       setStatus("Error deleting internship.", true);
+    }
+  }
+
+  private void viewApplications() {
+    if (!loggedIn) {
+      setStatus("You must login first.", true);
+      return;
+    }
+
+    try {
+      List<Application> applications = client.getAllApplications();
+
+      if (applications.isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this,
+            "There are no applications yet.",
+            "Applications",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+        return;
+      }
+
+      String[] columns = {
+          "Application ID",
+          "Student ID",
+          "Internship ID",
+          "Status",
+          "Date"
+      };
+
+      DefaultTableModel applicationModel =
+          new DefaultTableModel(columns, 0);
+
+      for (Application application : applications) {
+        applicationModel.addRow(new Object[]{
+            application.getApplicationId(),
+            application.getStudentId(),
+            application.getInternshipId(),
+            application.getStatus(),
+            application.getApplicationDate()
+        });
+      }
+
+      JTable applicationTable = new JTable(applicationModel);
+      JScrollPane scrollPane = new JScrollPane(applicationTable);
+
+      JOptionPane.showMessageDialog(
+          this,
+          scrollPane,
+          "Applications",
+          JOptionPane.INFORMATION_MESSAGE
+      );
+
+      setStatus(applications.size() + " applications loaded.", false);
+
+    } catch (Exception e) {
+      setStatus("Error loading applications: " + e.getMessage(), true);
+    }
+  }
+
+  private void updateApplicationStatus() {
+    if (!loggedIn) {
+      setStatus("You must login first.", true);
+      return;
+    }
+
+    String applicationIdText = JOptionPane.showInputDialog(
+        this,
+        "Enter Application ID:"
+    );
+
+    if (applicationIdText == null || applicationIdText.trim().isEmpty()) {
+      return;
+    }
+
+    String[] options = {"Pending", "Accepted", "Rejected"};
+
+    String newStatus = (String) JOptionPane.showInputDialog(
+        this,
+        "Select new status:",
+        "Update Status",
+        JOptionPane.QUESTION_MESSAGE,
+        null,
+        options,
+        options[0]
+    );
+
+    if (newStatus == null) {
+      return;
+    }
+
+    try {
+      int applicationId = Integer.parseInt(applicationIdText.trim());
+
+      boolean success =
+          client.updateApplicationStatus(applicationId, newStatus);
+
+      if (success) {
+        setStatus("Application status updated to " + newStatus + ".", false);
+      } else {
+        setStatus("Application not found.", true);
+      }
+
+    } catch (NumberFormatException e) {
+      setStatus("Application ID must be a number.", true);
+
+    } catch (Exception e) {
+      setStatus("Error updating application status: " + e.getMessage(), true);
     }
   }
 

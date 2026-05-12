@@ -13,18 +13,15 @@ public class ApplicationRepository {
     applications = new ArrayList<>();
   }
 
-  // ADD application
   public void addApplication(Application application) {
     applications.add(application);
     System.out.println("Application added.");
   }
 
-  // GET ALL applications
   public List<Application> getAllApplications() {
     return applications;
   }
 
-  // GET applications by student ID
   public List<Application> getApplicationsByStudent(int studentId) {
 
     List<Application> result = new ArrayList<>();
@@ -39,23 +36,21 @@ public class ApplicationRepository {
     return result;
   }
 
-  // UPDATE status
-  public void updateApplicationStatus(int applicationId, String newStatus) {
+  public boolean updateApplicationStatus(int applicationId, String newStatus) {
 
     for (Application application : applications) {
 
       if (application.getApplicationId() == applicationId) {
         application.setStatus(newStatus);
-
-        System.out.println("Status updated.");
-        return;
+        System.out.println("Status updated to " + newStatus);
+        return true;
       }
     }
 
     System.out.println("Application not found.");
+    return false;
   }
 
-  // DELETE application
   public void deleteApplication(int applicationId) {
 
     applications.removeIf(

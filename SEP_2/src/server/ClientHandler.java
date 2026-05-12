@@ -36,7 +36,6 @@ public class ClientHandler implements Runnable {
       Object commandObj = in.readObject();
 
       if (!(commandObj instanceof String)) {
-
         out.writeObject("ERROR");
         out.flush();
         return;
@@ -47,22 +46,17 @@ public class ClientHandler implements Runnable {
       switch (command) {
 
         case "GET_ALL":
-
           out.writeObject(repository.getAll());
           out.flush();
           break;
 
         case "ADD":
-
           Object addObj = in.readObject();
 
           if (addObj instanceof Internship internship) {
-
             repository.add(internship);
             out.writeObject("OK");
-
           } else {
-
             out.writeObject("ERROR");
           }
 
@@ -70,19 +64,12 @@ public class ClientHandler implements Runnable {
           break;
 
         case "DELETE":
-
           Object deleteObj = in.readObject();
 
           if (deleteObj instanceof Integer id) {
-
             boolean removed = repository.delete(id);
-
-            out.writeObject(
-                removed ? "OK" : "NOT_FOUND"
-            );
-
+            out.writeObject(removed ? "OK" : "NOT_FOUND");
           } else {
-
             out.writeObject("ERROR");
           }
 
@@ -90,17 +77,53 @@ public class ClientHandler implements Runnable {
           break;
 
         case "APPLY":
-
           Object applyObj = in.readObject();
 
           if (applyObj instanceof Application application) {
-
             applicationRepository.addApplication(application);
-
             out.writeObject("OK");
+          } else {
+            out.writeObject("ERROR");
+          }
+
+          out.flush();
+          break;
+
+        case "GET_APPLICATIONS_BY_STUDENT":
+          Object studentObj = in.readObject();
+
+          if (studentObj instanceof Integer studentId) {
+            out.writeObject(
+                applicationRepository.getApplicationsByStudent(studentId)
+            );
+          } else {
+            out.writeObject("ERROR");
+          }
+
+          out.flush();
+          break;
+
+        case "GET_ALL_APPLICATIONS":
+          out.writeObject(applicationRepository.getAllApplications());
+          out.flush();
+          break;
+
+        case "UPDATE_APPLICATION_STATUS":
+          Object appIdObj = in.readObject();
+          Object statusObj = in.readObject();
+
+          if (appIdObj instanceof Integer applicationId
+              && statusObj instanceof String newStatus) {
+
+            boolean updated =
+                applicationRepository.updateApplicationStatus(
+                    applicationId,
+                    newStatus
+                );
+
+            out.writeObject(updated ? "OK" : "NOT_FOUND");
 
           } else {
-
             out.writeObject("ERROR");
           }
 
@@ -108,29 +131,20 @@ public class ClientHandler implements Runnable {
           break;
 
         default:
-
           out.writeObject("ERROR");
           out.flush();
       }
 
     } catch (IOException | ClassNotFoundException e) {
 
-      System.err.println(
-          "ClientHandler error: " + e.getMessage()
-      );
+      System.err.println("ClientHandler error: " + e.getMessage());
 
     } finally {
 
       try {
-
         socket.close();
-
       } catch (IOException e) {
-
-        System.err.println(
-            "Could not close socket: "
-                + e.getMessage()
-        );
+        System.err.println("Could not close socket: " + e.getMessage());
       }
     }
   }

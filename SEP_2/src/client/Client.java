@@ -70,4 +70,55 @@ public class Client {
       return "OK".equals(response);
     }
   }
+
+  @SuppressWarnings("unchecked")
+  public List<Application> getApplicationsByStudent(int studentId)
+      throws IOException, ClassNotFoundException {
+
+    try (
+        Socket socket = new Socket(HOST, PORT);
+        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+    ) {
+      out.writeObject("GET_APPLICATIONS_BY_STUDENT");
+      out.writeObject(studentId);
+      out.flush();
+
+      return (List<Application>) in.readObject();
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<Application> getAllApplications()
+      throws IOException, ClassNotFoundException {
+
+    try (
+        Socket socket = new Socket(HOST, PORT);
+        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+    ) {
+      out.writeObject("GET_ALL_APPLICATIONS");
+      out.flush();
+
+      return (List<Application>) in.readObject();
+    }
+  }
+
+  public boolean updateApplicationStatus(int applicationId, String newStatus)
+      throws IOException, ClassNotFoundException {
+
+    try (
+        Socket socket = new Socket(HOST, PORT);
+        ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+        ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
+    ) {
+      out.writeObject("UPDATE_APPLICATION_STATUS");
+      out.writeObject(applicationId);
+      out.writeObject(newStatus);
+      out.flush();
+
+      String response = (String) in.readObject();
+      return "OK".equals(response);
+    }
+  }
 }

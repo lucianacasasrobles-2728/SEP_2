@@ -94,10 +94,12 @@ public class StudentGUI extends JFrame {
 
     JButton btnRefresh = new JButton("Refresh");
     JButton btnApply = new JButton("Apply Selected");
+    JButton btnViewApplications = new JButton("View My Applications");
 
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     buttonPanel.add(btnRefresh);
     buttonPanel.add(btnApply);
+    buttonPanel.add(btnViewApplications);
 
     lblStatus = new JLabel("Ready.");
 
@@ -111,6 +113,7 @@ public class StudentGUI extends JFrame {
     btnLogout.addActionListener(e -> logoutStudent());
     btnRefresh.addActionListener(e -> loadInternships());
     btnApply.addActionListener(e -> applySelectedInternship());
+    btnViewApplications.addActionListener(e -> viewMyApplications());
   }
 
   private void loginStudent() {
@@ -204,6 +207,65 @@ public class StudentGUI extends JFrame {
 
     } catch (Exception e) {
       setStatus("Error applying: " + e.getMessage(), true);
+    }
+  }
+
+  private void viewMyApplications() {
+
+    if (!loggedIn) {
+      setStatus("You must login first.", true);
+      return;
+    }
+
+    try {
+      List<Application> applications =
+          client.getApplicationsByStudent(currentStudent.getStudentId());
+
+      if (applications.isEmpty()) {
+        JOptionPane.showMessageDialog(
+            this,
+            "You have not applied to any internships yet.",
+            "My Applications",
+            JOptionPane.INFORMATION_MESSAGE
+        );
+        return;
+      }
+
+      String[] columns = {
+          "Application ID",
+          "Student ID",
+          "Internship ID",
+          "Status",
+          "Date"
+      };
+
+      DefaultTableModel applicationModel =
+          new DefaultTableModel(columns, 0);
+
+      for (Application application : applications) {
+        applicationModel.addRow(new Object[]{
+            application.getApplicationId(),
+            application.getStudentId(),
+            application.getInternshipId(),
+            application.getStatus(),
+            application.getApplicationDate()
+        });
+      }
+
+      JTable applicationTable = new JTable(applicationModel);
+      JScrollPane scrollPane = new JScrollPane(applicationTable);
+
+      JOptionPane.showMessageDialog(
+          this,
+          scrollPane,
+          "My Applications",
+          JOptionPane.INFORMATION_MESSAGE
+      );
+
+      setStatus(applications.size() + " applications loaded.", false);
+
+    } catch (Exception e) {
+      setStatus("Error loading applications: " + e.getMessage(), true);
     }
   }
 
