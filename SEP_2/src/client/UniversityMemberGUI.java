@@ -51,10 +51,8 @@ public class UniversityMemberGUI extends JFrame {
 
     loginPanel.add(new JLabel("Email:"));
     loginPanel.add(tfEmail);
-
     loginPanel.add(new JLabel("Password:"));
     loginPanel.add(pfPassword);
-
     loginPanel.add(btnLogin);
     loginPanel.add(btnLogout);
     loginPanel.add(lblLoggedUser);
@@ -83,11 +81,16 @@ public class UniversityMemberGUI extends JFrame {
     add(scrollPane, BorderLayout.CENTER);
 
     JButton btnRefresh = new JButton("Refresh");
+    JButton btnViewCompanies = new JButton("View Active Companies");
+
+    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    buttonPanel.add(btnRefresh);
+    buttonPanel.add(btnViewCompanies);
 
     lblStatus = new JLabel("Ready.");
 
     JPanel bottomPanel = new JPanel(new BorderLayout());
-    bottomPanel.add(btnRefresh, BorderLayout.WEST);
+    bottomPanel.add(buttonPanel, BorderLayout.WEST);
     bottomPanel.add(lblStatus, BorderLayout.EAST);
 
     add(bottomPanel, BorderLayout.SOUTH);
@@ -95,6 +98,7 @@ public class UniversityMemberGUI extends JFrame {
     btnLogin.addActionListener(e -> login());
     btnLogout.addActionListener(e -> logout());
     btnRefresh.addActionListener(e -> loadStudentProgress());
+    btnViewCompanies.addActionListener(e -> viewActiveCompanies());
   }
 
   private void login() {
@@ -158,6 +162,30 @@ public class UniversityMemberGUI extends JFrame {
     tableModel.addRow(new Object[]{5, 1, 13, "Pending", "2026-05-12"});
 
     setStatus("Student progress loaded.", false);
+  }
+
+  private void viewActiveCompanies() {
+
+    if (!loggedIn) {
+      setStatus("Please login first.", true);
+      return;
+    }
+
+    JOptionPane.showMessageDialog(
+        this,
+        """
+        Active Companies:
+
+        - Systematic
+        - LEGO
+        - Trifork
+        - Vestas
+        """,
+        "Active Companies",
+        JOptionPane.INFORMATION_MESSAGE
+    );
+
+    setStatus("Active companies displayed.", false);
   }
 
   private void setStatus(String message, boolean isError) {
