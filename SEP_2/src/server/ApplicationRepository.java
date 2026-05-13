@@ -11,7 +11,7 @@ public class ApplicationRepository {
   public void addApplication(Application application) {
 
     String sql = """
-        INSERT INTO applications
+        INSERT INTO application
         (student_id, internship_id, status, application_date)
         VALUES (?, ?, ?, ?)
         """;
@@ -43,7 +43,7 @@ public class ApplicationRepository {
                internship_id,
                status,
                application_date
-        FROM applications
+        FROM application
         """;
 
     try (Connection connection = DatabaseConnection.getConnection();
@@ -80,7 +80,7 @@ public class ApplicationRepository {
                internship_id,
                status,
                application_date
-        FROM applications
+        FROM application
         WHERE student_id = ?
         """;
 

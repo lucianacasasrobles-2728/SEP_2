@@ -15,6 +15,7 @@ public class InternshipRepository {
     String sql = """
             SELECT internship_id,
                    title,
+                   
                    description,
                    company_id,
                    position,
