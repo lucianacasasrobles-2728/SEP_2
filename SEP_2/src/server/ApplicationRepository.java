@@ -11,7 +11,7 @@ public class ApplicationRepository {
   public boolean addApplication(Application application) {
 
     String sql = """
-        INSERT INTO applications
+        INSERT INTO application
         (student_id, internship_id, status, application_date)
         VALUES (?, ?, ?, ?)
         """;
@@ -60,7 +60,7 @@ public class ApplicationRepository {
                internship_id,
                status,
                application_date
-        FROM applications
+        FROM application
         """;
 
     try (Connection connection = DatabaseConnection.getConnection();
@@ -97,7 +97,7 @@ public class ApplicationRepository {
                internship_id,
                status,
                application_date
-        FROM applications
+        FROM application
         WHERE student_id = ?
         """;
 
@@ -132,7 +132,7 @@ public class ApplicationRepository {
   public boolean updateApplicationStatus(int applicationId, String newStatus) {
 
     String sql = """
-        UPDATE applications
+        UPDATE application
         SET status = ?
         WHERE application_id = ?
         """;
@@ -182,7 +182,7 @@ public class ApplicationRepository {
   public void deleteApplication(int applicationId) {
 
     String sql = """
-        DELETE FROM applications
+        DELETE FROM application
         WHERE application_id = ?
         """;
 
@@ -223,7 +223,7 @@ public class ApplicationRepository {
 
     String sql = """
         SELECT internship_id
-        FROM applications
+        FROM application
         WHERE application_id = ?
         """;
 
@@ -245,7 +245,7 @@ public class ApplicationRepository {
 
     String sql = """
         SELECT 1
-        FROM applications
+        FROM application
         WHERE internship_id = ?
           AND LOWER(status) = 'accepted'
         LIMIT 1
@@ -268,7 +268,7 @@ public class ApplicationRepository {
 
     String sql = """
         SELECT 1
-        FROM applications
+        FROM application
         WHERE internship_id = ?
           AND application_id <> ?
           AND LOWER(status) = 'accepted'
@@ -292,7 +292,7 @@ public class ApplicationRepository {
   ) throws SQLException {
 
     String sql = """
-        UPDATE applications
+        UPDATE application
         SET status = 'Rejected'
         WHERE internship_id = ?
           AND application_id <> ?

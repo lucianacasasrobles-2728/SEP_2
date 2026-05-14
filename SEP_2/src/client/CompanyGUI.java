@@ -110,6 +110,23 @@ public class CompanyGUI extends JFrame {
     tfEndDate = new JTextField(15);
     tfStatus = new JTextField(15);
 
+    Dimension fieldSize = new Dimension(150, 26);
+    JTextField[] fields = {
+        tfTitle,
+        tfDescription,
+        tfCompanyId,
+        tfLocation,
+        tfPosition,
+        tfStartDate,
+        tfEndDate,
+        tfStatus
+    };
+
+    for (JTextField field : fields) {
+      field.setPreferredSize(fieldSize);
+      field.setMinimumSize(fieldSize);
+    }
+
     addField(formPanel, gbc, 0, "Title:", tfTitle);
     addField(formPanel, gbc, 1, "Description:", tfDescription);
     addField(formPanel, gbc, 2, "Company ID:", tfCompanyId);
@@ -128,7 +145,7 @@ public class CompanyGUI extends JFrame {
     formPanel.add(btnAdd, gbc);
 
     JPanel rightPanel = new JPanel(new BorderLayout());
-    rightPanel.setPreferredSize(new Dimension(280, 0));
+    rightPanel.setPreferredSize(new Dimension(300, 0));
     rightPanel.add(formPanel, BorderLayout.NORTH);
 
     add(rightPanel, BorderLayout.EAST);
@@ -199,7 +216,12 @@ public class CompanyGUI extends JFrame {
     panel.add(new JLabel(labelText), gbc);
 
     gbc.gridx = 1;
+    gbc.weightx = 1.0;
+    gbc.fill = GridBagConstraints.HORIZONTAL;
     panel.add(textField, gbc);
+
+    gbc.weightx = 0.0;
+    gbc.fill = GridBagConstraints.NONE;
   }
 
   private void loadInternships() {
