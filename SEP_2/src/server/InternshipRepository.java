@@ -12,7 +12,6 @@ public class InternshipRepository {
 
     List<Internship> internships = new ArrayList<>();
 
-    // ✅ JOIN aby sme získali aj location z company
     String sql = """
         SELECT i.internship_id,
                i.title,
@@ -22,7 +21,16 @@ public class InternshipRepository {
                i.position,
                i.start_date,
                i.end_date,
-               i.status
+               CASE
+                 WHEN EXISTS (
+                   SELECT 1
+                   FROM applications a
+                   WHERE a.internship_id = i.internship_id
+                     AND LOWER(a.status) = 'accepted'
+                 )
+                 THEN 'Filled'
+                 ELSE i.status
+               END AS status
         FROM internship i
         JOIN company c ON i.company_id = c.company_id
         """;
@@ -57,7 +65,6 @@ public class InternshipRepository {
     return internships;
   }
 
-  // ✅ OPRAVENÝ INSERT
   public void add(Internship internship) {
 
     String sql = """
