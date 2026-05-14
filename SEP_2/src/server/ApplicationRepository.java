@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ApplicationRepository {
 
-  public void addApplication(Application application) {
+  public boolean addApplication(Application application) {
 
     String sql = """
         INSERT INTO application
@@ -16,20 +16,37 @@ public class ApplicationRepository {
         VALUES (?, ?, ?, ?)
         """;
 
-    try (Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql)) {
+    try (Connection connection = DatabaseConnection.getConnection()) {
+      connection.setAutoCommit(false);
 
-      statement.setInt(1, application.getStudentId());
-      statement.setInt(2, application.getInternshipId());
-      statement.setString(3, application.getStatus());
-      statement.setDate(4, Date.valueOf(application.getApplicationDate()));
+      try {
+        if (!lockInternship(connection, application.getInternshipId())
+            || hasAcceptedApplication(connection, application.getInternshipId())) {
+          connection.rollback();
+          return false;
+        }
 
-      statement.executeUpdate();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+          statement.setInt(1, application.getStudentId());
+          statement.setInt(2, application.getInternshipId());
+          statement.setString(3, application.getStatus());
+          statement.setDate(4, Date.valueOf(application.getApplicationDate()));
 
-      System.out.println("Application saved in database.");
+          int rows = statement.executeUpdate();
+          connection.commit();
+
+          System.out.println("Application saved in database.");
+          return rows > 0;
+        }
+
+      } catch (SQLException e) {
+        connection.rollback();
+        throw e;
+      }
 
     } catch (SQLException e) {
       e.printStackTrace();
+      return false;
     }
   }
 
@@ -120,15 +137,41 @@ public class ApplicationRepository {
         WHERE application_id = ?
         """;
 
-    try (Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql)) {
+    try (Connection connection = DatabaseConnection.getConnection()) {
+      connection.setAutoCommit(false);
 
-      statement.setString(1, newStatus);
-      statement.setInt(2, applicationId);
+      try {
+        Integer internshipId = getInternshipId(connection, applicationId);
 
-      int rows = statement.executeUpdate();
+        if (internshipId == null || !lockInternship(connection, internshipId)) {
+          connection.rollback();
+          return false;
+        }
 
-      return rows > 0;
+        if ("Accepted".equalsIgnoreCase(newStatus)
+            && hasOtherAcceptedApplication(connection, applicationId, internshipId)) {
+          connection.rollback();
+          return false;
+        }
+
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+          statement.setString(1, newStatus);
+          statement.setInt(2, applicationId);
+
+          int rows = statement.executeUpdate();
+
+          if (rows > 0 && "Accepted".equalsIgnoreCase(newStatus)) {
+            rejectOtherPendingApplications(connection, applicationId, internshipId);
+          }
+
+          connection.commit();
+          return rows > 0;
+        }
+
+      } catch (SQLException e) {
+        connection.rollback();
+        throw e;
+      }
 
     } catch (SQLException e) {
       e.printStackTrace();
@@ -153,6 +196,113 @@ public class ApplicationRepository {
 
     } catch (SQLException e) {
       e.printStackTrace();
+    }
+  }
+
+  private boolean lockInternship(Connection connection, int internshipId)
+      throws SQLException {
+
+    String sql = """
+        SELECT internship_id
+        FROM internship
+        WHERE internship_id = ?
+        FOR UPDATE
+        """;
+
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, internshipId);
+
+      try (ResultSet rs = statement.executeQuery()) {
+        return rs.next();
+      }
+    }
+  }
+
+  private Integer getInternshipId(Connection connection, int applicationId)
+      throws SQLException {
+
+    String sql = """
+        SELECT internship_id
+        FROM applications
+        WHERE application_id = ?
+        """;
+
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, applicationId);
+
+      try (ResultSet rs = statement.executeQuery()) {
+        if (rs.next()) {
+          return rs.getInt("internship_id");
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private boolean hasAcceptedApplication(Connection connection, int internshipId)
+      throws SQLException {
+
+    String sql = """
+        SELECT 1
+        FROM applications
+        WHERE internship_id = ?
+          AND LOWER(status) = 'accepted'
+        LIMIT 1
+        """;
+
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, internshipId);
+
+      try (ResultSet rs = statement.executeQuery()) {
+        return rs.next();
+      }
+    }
+  }
+
+  private boolean hasOtherAcceptedApplication(
+      Connection connection,
+      int applicationId,
+      int internshipId
+  ) throws SQLException {
+
+    String sql = """
+        SELECT 1
+        FROM applications
+        WHERE internship_id = ?
+          AND application_id <> ?
+          AND LOWER(status) = 'accepted'
+        LIMIT 1
+        """;
+
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, internshipId);
+      statement.setInt(2, applicationId);
+
+      try (ResultSet rs = statement.executeQuery()) {
+        return rs.next();
+      }
+    }
+  }
+
+  private void rejectOtherPendingApplications(
+      Connection connection,
+      int applicationId,
+      int internshipId
+  ) throws SQLException {
+
+    String sql = """
+        UPDATE applications
+        SET status = 'Rejected'
+        WHERE internship_id = ?
+          AND application_id <> ?
+          AND LOWER(status) = 'pending'
+        """;
+
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, internshipId);
+      statement.setInt(2, applicationId);
+      statement.executeUpdate();
     }
   }
 }

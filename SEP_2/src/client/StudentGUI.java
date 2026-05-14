@@ -189,6 +189,12 @@ public class StudentGUI extends JFrame {
     }
 
     int internshipId = (int) tableModel.getValueAt(selectedRow, 0);
+    String internshipStatus = (String) tableModel.getValueAt(selectedRow, 5);
+
+    if ("Filled".equalsIgnoreCase(internshipStatus)) {
+      setStatus("This internship is already filled.", true);
+      return;
+    }
 
     Application application = new Application(
         0,
@@ -205,7 +211,7 @@ public class StudentGUI extends JFrame {
         currentStudent.applyForInternship();
         setStatus("Application sent successfully.", false);
       } else {
-        setStatus("Could not send application.", true);
+        setStatus("Could not send application. Internship may already be filled.", true);
       }
 
     } catch (Exception e) {

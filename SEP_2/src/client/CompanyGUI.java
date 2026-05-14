@@ -388,7 +388,7 @@ public class CompanyGUI extends JFrame {
       if (success) {
         setStatus("Application status updated to " + newStatus + ".", false);
       } else {
-        setStatus("Application not found.", true);
+        setStatus("Application not found or internship already has an accepted student.", true);
       }
 
     } catch (NumberFormatException e) {
