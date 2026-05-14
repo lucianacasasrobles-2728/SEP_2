@@ -80,8 +80,8 @@ public class ClientHandler implements Runnable {
           Object applyObj = in.readObject();
 
           if (applyObj instanceof Application application) {
-            applicationRepository.addApplication(application);
-            out.writeObject("OK");
+            boolean added = applicationRepository.addApplication(application);
+            out.writeObject(added ? "OK" : "INTERNSHIP_FILLED");
           } else {
             out.writeObject("ERROR");
           }
