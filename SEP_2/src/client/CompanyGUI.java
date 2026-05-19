@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class CompanyGUI extends JFrame {
@@ -37,14 +39,6 @@ public class CompanyGUI extends JFrame {
 
   public CompanyGUI() {
     super("Company Internship Portal");
-
-    currentCompany = new Company(
-        1,
-        "Trifork",
-        "company@email.com",
-        "1234",
-        "Software company"
-    );
 
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(950, 600);
@@ -154,12 +148,14 @@ public class CompanyGUI extends JFrame {
     JButton btnDelete = new JButton("Delete Selected");
     JButton btnViewApplications = new JButton("View Applications");
     JButton btnUpdateStatus = new JButton("Update Application Status");
+    JButton btnDeleteApplication = new JButton("Delete Application");
 
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     buttonPanel.add(btnRefresh);
     buttonPanel.add(btnDelete);
     buttonPanel.add(btnViewApplications);
     buttonPanel.add(btnUpdateStatus);
+    buttonPanel.add(btnDeleteApplication);
 
     lblStatus = new JLabel("Ready.");
 
@@ -176,31 +172,47 @@ public class CompanyGUI extends JFrame {
     btnDelete.addActionListener(e -> deleteSelected());
     btnViewApplications.addActionListener(e -> viewApplications());
     btnUpdateStatus.addActionListener(e -> updateApplicationStatus());
+    btnDeleteApplication.addActionListener(e -> deleteApplication());
   }
 
   private void loginCompany() {
     String email = tfEmail.getText().trim();
     String password = new String(pfPassword.getPassword());
 
-    boolean success = currentCompany.login(email, password);
+    try {
+      Company matchingCompany = client.loginCompany(email, password);
 
-    if (success) {
-      loggedIn = true;
-      lblLoggedCompany.setText("Logged in as " + currentCompany.getCompanyName());
-      setStatus("Login successful.", false);
-    } else {
+      if (matchingCompany != null) {
+        currentCompany = matchingCompany;
+        loggedIn = true;
+        tfCompanyId.setText(String.valueOf(currentCompany.getCompanyId()));
+        tfCompanyId.setEditable(false);
+        lblLoggedCompany.setText("Logged in as " + currentCompany.getCompanyName());
+        setStatus("Login successful.", false);
+      } else {
+        loggedIn = false;
+        lblLoggedCompany.setText("Not logged in");
+        setStatus("Wrong email or password.", true);
+      }
+
+    } catch (Exception e) {
       loggedIn = false;
       lblLoggedCompany.setText("Not logged in");
-      setStatus("Wrong email or password.", true);
+      setStatus("Login error: " + e.getMessage(), true);
     }
   }
 
   private void logoutCompany() {
-    currentCompany.logout();
+    if (currentCompany != null) {
+      currentCompany.logout();
+    }
 
+    currentCompany = null;
     loggedIn = false;
     tfEmail.setText("");
     pfPassword.setText("");
+    tfCompanyId.setText("");
+    tfCompanyId.setEditable(true);
     lblLoggedCompany.setText("Not logged in");
 
     setStatus("Logged out.", false);
@@ -258,11 +270,11 @@ public class CompanyGUI extends JFrame {
           0,
           tfTitle.getText().trim(),
           tfDescription.getText().trim(),
-          Integer.parseInt(tfCompanyId.getText().trim()),
+          currentCompany.getCompanyId(),
           tfLocation.getText().trim(),
           tfPosition.getText().trim(),
-          LocalDate.parse(tfStartDate.getText().trim()),
-          LocalDate.parse(tfEndDate.getText().trim()),
+          parseDate(tfStartDate.getText().trim()),
+          parseDate(tfEndDate.getText().trim()),
           tfStatus.getText().trim()
       );
 
@@ -277,8 +289,28 @@ public class CompanyGUI extends JFrame {
         setStatus("Could not add internship.", true);
       }
 
+    } catch (IllegalArgumentException e) {
+      setStatus(e.getMessage(), true);
+
     } catch (Exception e) {
       setStatus("Error: check all fields.", true);
+    }
+  }
+
+  private LocalDate parseDate(String dateText) {
+    DateTimeFormatter danishFormatter =
+        DateTimeFormatter.ofPattern("d.M.yyyy");
+
+    try {
+      return LocalDate.parse(dateText);
+    } catch (DateTimeParseException e) {
+      try {
+        return LocalDate.parse(dateText, danishFormatter);
+      } catch (DateTimeParseException ex) {
+        throw new IllegalArgumentException(
+            "Wrong date format. Use yyyy-MM-dd or d.M.yyyy."
+        );
+      }
     }
   }
 
@@ -320,7 +352,8 @@ public class CompanyGUI extends JFrame {
     }
 
     try {
-      List<Application> applications = client.getAllApplications();
+      List<Application> applications =
+          client.getApplicationsByCompany(currentCompany.getCompanyId());
 
       if (applications.isEmpty()) {
         JOptionPane.showMessageDialog(
@@ -335,6 +368,11 @@ public class CompanyGUI extends JFrame {
       String[] columns = {
           "Application ID",
           "Student ID",
+          "Student Name",
+          "Age",
+          "University",
+          "Working Experience",
+          "Personality Traits",
           "Internship ID",
           "Status",
           "Date"
@@ -347,26 +385,104 @@ public class CompanyGUI extends JFrame {
         applicationModel.addRow(new Object[]{
             application.getApplicationId(),
             application.getStudentId(),
+            application.getStudentName(),
+            application.getStudentAge() == 0 ? "" : application.getStudentAge(),
+            application.getUniversity(),
+            application.getWorkingExperience(),
+            application.getPersonalityTraits(),
             application.getInternshipId(),
             application.getStatus(),
             application.getApplicationDate()
         });
       }
 
-      JTable applicationTable = new JTable(applicationModel);
-      JScrollPane scrollPane = new JScrollPane(applicationTable);
-
-      JOptionPane.showMessageDialog(
-          this,
-          scrollPane,
-          "Applications",
-          JOptionPane.INFORMATION_MESSAGE
-      );
+      showApplicationsDialog(applicationModel);
 
       setStatus(applications.size() + " applications loaded.", false);
 
     } catch (Exception e) {
       setStatus("Error loading applications: " + e.getMessage(), true);
+    }
+  }
+
+  private void showApplicationsDialog(DefaultTableModel applicationModel) {
+    JDialog dialog = new JDialog(this, "Applications", true);
+    dialog.setLayout(new BorderLayout(10, 10));
+
+    JTable applicationTable = new JTable(applicationModel);
+    applicationTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    applicationTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    applicationTable.setRowHeight(24);
+    applicationTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+    applicationTable.getColumnModel().getColumn(1).setPreferredWidth(80);
+    applicationTable.getColumnModel().getColumn(2).setPreferredWidth(130);
+    applicationTable.getColumnModel().getColumn(3).setPreferredWidth(50);
+    applicationTable.getColumnModel().getColumn(4).setPreferredWidth(160);
+    applicationTable.getColumnModel().getColumn(5).setPreferredWidth(240);
+    applicationTable.getColumnModel().getColumn(6).setPreferredWidth(220);
+    applicationTable.getColumnModel().getColumn(7).setPreferredWidth(90);
+    applicationTable.getColumnModel().getColumn(8).setPreferredWidth(90);
+    applicationTable.getColumnModel().getColumn(9).setPreferredWidth(100);
+
+    JScrollPane scrollPane = new JScrollPane(applicationTable);
+    scrollPane.setPreferredSize(new Dimension(900, 300));
+
+    JButton btnDeleteSelected = new JButton("Delete Selected");
+    JButton btnClose = new JButton("Close");
+
+    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    buttonPanel.add(btnDeleteSelected);
+    buttonPanel.add(btnClose);
+
+    btnDeleteSelected.addActionListener(e ->
+        deleteSelectedApplicationFromTable(applicationTable, applicationModel)
+    );
+    btnClose.addActionListener(e -> dialog.dispose());
+
+    dialog.add(scrollPane, BorderLayout.CENTER);
+    dialog.add(buttonPanel, BorderLayout.SOUTH);
+    dialog.pack();
+    dialog.setLocationRelativeTo(this);
+    dialog.setVisible(true);
+  }
+
+  private void deleteSelectedApplicationFromTable(
+      JTable applicationTable,
+      DefaultTableModel applicationModel
+  ) {
+    int selectedRow = applicationTable.getSelectedRow();
+
+    if (selectedRow == -1) {
+      setStatus("Please select an application.", true);
+      return;
+    }
+
+    int modelRow = applicationTable.convertRowIndexToModel(selectedRow);
+    int applicationId = (int) applicationModel.getValueAt(modelRow, 0);
+
+    int choice = JOptionPane.showConfirmDialog(
+        this,
+        "Delete application " + applicationId + "?",
+        "Confirm Delete",
+        JOptionPane.YES_NO_OPTION
+    );
+
+    if (choice != JOptionPane.YES_OPTION) {
+      return;
+    }
+
+    try {
+      boolean success = client.deleteApplication(applicationId);
+
+      if (success) {
+        applicationModel.removeRow(modelRow);
+        setStatus("Application deleted.", false);
+      } else {
+        setStatus("Application not found.", true);
+      }
+
+    } catch (Exception e) {
+      setStatus("Error deleting application: " + e.getMessage(), true);
     }
   }
 
@@ -405,12 +521,16 @@ public class CompanyGUI extends JFrame {
       int applicationId = Integer.parseInt(applicationIdText.trim());
 
       boolean success =
-          client.updateApplicationStatus(applicationId, newStatus);
+          client.updateApplicationStatusForCompany(
+              applicationId,
+              newStatus,
+              currentCompany.getCompanyId()
+          );
 
       if (success) {
         setStatus("Application status updated to " + newStatus + ".", false);
       } else {
-        setStatus("Application not found or internship already has an accepted student.", true);
+        setStatus("Application not found for your company or internship already has an accepted student.", true);
       }
 
     } catch (NumberFormatException e) {
@@ -418,6 +538,51 @@ public class CompanyGUI extends JFrame {
 
     } catch (Exception e) {
       setStatus("Error updating application status: " + e.getMessage(), true);
+    }
+  }
+
+  private void deleteApplication() {
+    if (!loggedIn) {
+      setStatus("You must login first.", true);
+      return;
+    }
+
+    String applicationIdText = JOptionPane.showInputDialog(
+        this,
+        "Enter Application ID to delete:"
+    );
+
+    if (applicationIdText == null || applicationIdText.trim().isEmpty()) {
+      return;
+    }
+
+    try {
+      int applicationId = Integer.parseInt(applicationIdText.trim());
+
+      int choice = JOptionPane.showConfirmDialog(
+          this,
+          "Delete application " + applicationId + "?",
+          "Confirm Delete",
+          JOptionPane.YES_NO_OPTION
+      );
+
+      if (choice != JOptionPane.YES_OPTION) {
+        return;
+      }
+
+      boolean success = client.deleteApplication(applicationId);
+
+      if (success) {
+        setStatus("Application deleted.", false);
+      } else {
+        setStatus("Application not found.", true);
+      }
+
+    } catch (NumberFormatException e) {
+      setStatus("Application ID must be a number.", true);
+
+    } catch (Exception e) {
+      setStatus("Error deleting application: " + e.getMessage(), true);
     }
   }
 

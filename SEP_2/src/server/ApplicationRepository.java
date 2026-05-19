@@ -12,11 +12,14 @@ public class ApplicationRepository {
 
     String sql = """
         INSERT INTO application
-        (student_id, internship_id, status, application_date)
-        VALUES (?, ?, ?, ?)
+        (student_id, internship_id, status, application_date,
+         student_name, student_age, university,
+         working_experience, personality_traits)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
     try (Connection connection = DatabaseConnection.getConnection()) {
+      ensureStudentProfileColumns(connection);
       connection.setAutoCommit(false);
 
       try {
@@ -31,6 +34,11 @@ public class ApplicationRepository {
           statement.setInt(2, application.getInternshipId());
           statement.setString(3, application.getStatus());
           statement.setDate(4, Date.valueOf(application.getApplicationDate()));
+          statement.setString(5, application.getStudentName());
+          statement.setInt(6, application.getStudentAge());
+          statement.setString(7, application.getUniversity());
+          statement.setString(8, application.getWorkingExperience());
+          statement.setString(9, application.getPersonalityTraits());
 
           int rows = statement.executeUpdate();
           connection.commit();
@@ -59,25 +67,25 @@ public class ApplicationRepository {
                student_id,
                internship_id,
                status,
-               application_date
+               application_date,
+               student_name,
+               student_age,
+               university,
+               working_experience,
+               personality_traits
         FROM application
         """;
 
-    try (Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql);
-        ResultSet rs = statement.executeQuery()) {
+    try (Connection connection = DatabaseConnection.getConnection()) {
+      ensureStudentProfileColumns(connection);
 
-      while (rs.next()) {
+      try (PreparedStatement statement = connection.prepareStatement(sql);
+          ResultSet rs = statement.executeQuery()) {
 
-        Application application = new Application(
-            rs.getInt("application_id"),
-            rs.getInt("student_id"),
-            rs.getInt("internship_id"),
-            rs.getString("status"),
-            rs.getDate("application_date").toLocalDate()
-        );
+        while (rs.next()) {
 
-        applications.add(application);
+          applications.add(createApplication(rs));
+        }
       }
 
     } catch (SQLException e) {
@@ -96,29 +104,29 @@ public class ApplicationRepository {
                student_id,
                internship_id,
                status,
-               application_date
+               application_date,
+               student_name,
+               student_age,
+               university,
+               working_experience,
+               personality_traits
         FROM application
         WHERE student_id = ?
         """;
 
-    try (Connection connection = DatabaseConnection.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql)) {
+    try (Connection connection = DatabaseConnection.getConnection()) {
+      ensureStudentProfileColumns(connection);
 
-      statement.setInt(1, studentId);
+      try (PreparedStatement statement = connection.prepareStatement(sql)) {
 
-      try (ResultSet rs = statement.executeQuery()) {
+        statement.setInt(1, studentId);
 
-        while (rs.next()) {
+        try (ResultSet rs = statement.executeQuery()) {
 
-          Application application = new Application(
-              rs.getInt("application_id"),
-              rs.getInt("student_id"),
-              rs.getInt("internship_id"),
-              rs.getString("status"),
-              rs.getDate("application_date").toLocalDate()
-          );
+          while (rs.next()) {
 
-          applications.add(application);
+            applications.add(createApplication(rs));
+          }
         }
       }
 
@@ -129,7 +137,54 @@ public class ApplicationRepository {
     return applications;
   }
 
-  public boolean updateApplicationStatus(int applicationId, String newStatus) {
+  public List<Application> getApplicationsByCompany(int companyId) {
+
+    List<Application> applications = new ArrayList<>();
+
+    String sql = """
+        SELECT a.application_id,
+               a.student_id,
+               a.internship_id,
+               a.status,
+               a.application_date,
+               a.student_name,
+               a.student_age,
+               a.university,
+               a.working_experience,
+               a.personality_traits
+        FROM application a
+        JOIN internship i ON a.internship_id = i.internship_id
+        WHERE i.company_id = ?
+        """;
+
+    try (Connection connection = DatabaseConnection.getConnection()) {
+      ensureStudentProfileColumns(connection);
+
+      try (PreparedStatement statement = connection.prepareStatement(sql)) {
+
+        statement.setInt(1, companyId);
+
+        try (ResultSet rs = statement.executeQuery()) {
+
+          while (rs.next()) {
+
+            applications.add(createApplication(rs));
+          }
+        }
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    return applications;
+  }
+
+  public boolean updateApplicationStatusForCompany(
+      int applicationId,
+      String newStatus,
+      int companyId
+  ) {
 
     String sql = """
         UPDATE application
@@ -141,7 +196,8 @@ public class ApplicationRepository {
       connection.setAutoCommit(false);
 
       try {
-        Integer internshipId = getInternshipId(connection, applicationId);
+        Integer internshipId =
+            getInternshipIdForCompany(connection, applicationId, companyId);
 
         if (internshipId == null || !lockInternship(connection, internshipId)) {
           connection.rollback();
@@ -179,7 +235,48 @@ public class ApplicationRepository {
     }
   }
 
-  public void deleteApplication(int applicationId) {
+  private Application createApplication(ResultSet rs) throws SQLException {
+    int studentAge = rs.getInt("student_age");
+    if (rs.wasNull()) {
+      studentAge = 0;
+    }
+
+    return new Application(
+        rs.getInt("application_id"),
+        rs.getInt("student_id"),
+        rs.getInt("internship_id"),
+        rs.getString("status"),
+        rs.getDate("application_date").toLocalDate(),
+        valueOrEmpty(rs.getString("student_name")),
+        studentAge,
+        valueOrEmpty(rs.getString("university")),
+        valueOrEmpty(rs.getString("working_experience")),
+        valueOrEmpty(rs.getString("personality_traits"))
+    );
+  }
+
+  private String valueOrEmpty(String value) {
+    return value == null ? "" : value;
+  }
+
+  private void ensureStudentProfileColumns(Connection connection)
+      throws SQLException {
+
+    String sql = """
+        ALTER TABLE application
+          ADD COLUMN IF NOT EXISTS student_name VARCHAR(100),
+          ADD COLUMN IF NOT EXISTS student_age INTEGER,
+          ADD COLUMN IF NOT EXISTS university VARCHAR(150),
+          ADD COLUMN IF NOT EXISTS working_experience TEXT,
+          ADD COLUMN IF NOT EXISTS personality_traits TEXT
+        """;
+
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.executeUpdate();
+    }
+  }
+
+  public boolean deleteApplication(int applicationId) {
 
     String sql = """
         DELETE FROM application
@@ -190,12 +287,17 @@ public class ApplicationRepository {
         PreparedStatement statement = connection.prepareStatement(sql)) {
 
       statement.setInt(1, applicationId);
-      statement.executeUpdate();
+      int rows = statement.executeUpdate();
 
-      System.out.println("Application deleted.");
+      if (rows > 0) {
+        System.out.println("Application deleted.");
+      }
+
+      return rows > 0;
 
     } catch (SQLException e) {
       e.printStackTrace();
+      return false;
     }
   }
 
@@ -218,17 +320,23 @@ public class ApplicationRepository {
     }
   }
 
-  private Integer getInternshipId(Connection connection, int applicationId)
-      throws SQLException {
+  private Integer getInternshipIdForCompany(
+      Connection connection,
+      int applicationId,
+      int companyId
+  ) throws SQLException {
 
     String sql = """
-        SELECT internship_id
-        FROM application
-        WHERE application_id = ?
+        SELECT a.internship_id
+        FROM application a
+        JOIN internship i ON a.internship_id = i.internship_id
+        WHERE a.application_id = ?
+          AND i.company_id = ?
         """;
 
     try (PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setInt(1, applicationId);
+      statement.setInt(2, companyId);
 
       try (ResultSet rs = statement.executeQuery()) {
         if (rs.next()) {
