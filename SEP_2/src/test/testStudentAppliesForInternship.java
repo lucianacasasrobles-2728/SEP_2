@@ -72,4 +72,20 @@ public class testStudentAppliesForInternship {
 
 
   }
+  @Test
+  public void testUpdateApplicationStatus() {
+
+    Application application = new Application(
+
+        1,
+        1,
+        1,
+        "Pending",
+        LocalDate.of(2026, 5, 2)
+    );
+
+    application.setStatus("Accepted");
+
+    assertEquals("Accepted", application.getStatus());
+  }
 }
