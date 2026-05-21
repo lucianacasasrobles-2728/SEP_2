@@ -153,14 +153,19 @@ public class InternsheeepTest {
     }
   }
   @Test
-  public void testSocketConnection() {
+  public void testSocketConnectionIsClosedCorrectly() {
 
     try {
       Socket socket = new Socket("localhost", 9090);
 
+      // Verify socket connects correctly
       assertTrue(socket.isConnected());
 
+      // Close socket
       socket.close();
+
+      // Verify socket is closed
+      assertTrue(socket.isClosed());
 
     } catch (Exception e) {
       fail("Socket connection failed");
