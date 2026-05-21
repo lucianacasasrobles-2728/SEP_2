@@ -87,11 +87,13 @@ public class StudentGUI extends JFrame {
     JButton btnRefresh = new JButton("Refresh");
     JButton btnApply = new JButton("Apply Selected");
     JButton btnViewApplications = new JButton("View My Applications");
+    JButton btnEditProfile = new JButton("Edit Profile");
 
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     buttonPanel.add(btnRefresh);
     buttonPanel.add(btnApply);
     buttonPanel.add(btnViewApplications);
+    buttonPanel.add(btnEditProfile);
 
     lblStatus = new JLabel("Ready.");
 
@@ -106,6 +108,7 @@ public class StudentGUI extends JFrame {
     btnRefresh.addActionListener(e -> loadInternships());
     btnApply.addActionListener(e -> applySelectedInternship());
     btnViewApplications.addActionListener(e -> viewMyApplications());
+    btnEditProfile.addActionListener(e -> editProfile());
   }
 
   private void loginStudent() {
@@ -281,6 +284,74 @@ public class StudentGUI extends JFrame {
 
     } catch (Exception e) {
       setStatus("Error loading applications: " + e.getMessage(), true);
+    }
+  }
+
+  private void editProfile() {
+
+    if (!loggedIn) {
+      setStatus("You must login first.", true);
+      return;
+    }
+
+    JTextField nameField =
+        new JTextField(currentStudent.getName());
+
+    JTextField emailField =
+        new JTextField(currentStudent.getEmail());
+
+    JTextField cvField =
+        new JTextField(currentStudent.getCv());
+
+    JPanel panel =
+        new JPanel(new GridLayout(3, 2, 5, 5));
+
+    panel.add(new JLabel("Name:"));
+    panel.add(nameField);
+
+    panel.add(new JLabel("Email:"));
+    panel.add(emailField);
+
+    panel.add(new JLabel("CV:"));
+    panel.add(cvField);
+
+    int result =
+        JOptionPane.showConfirmDialog(
+            this,
+            panel,
+            "Edit Profile",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE
+        );
+
+    if (result == JOptionPane.OK_OPTION) {
+
+      String newName =
+          nameField.getText().trim();
+
+      String newEmail =
+          emailField.getText().trim();
+
+      String newCv =
+          cvField.getText().trim();
+
+      if (newName.isEmpty()
+          || newEmail.isEmpty()
+          || newCv.isEmpty()) {
+
+        setStatus("Profile fields cannot be empty.", true);
+        return;
+      }
+
+      currentStudent.setName(newName);
+      currentStudent.setEmail(newEmail);
+      currentStudent.setCv(newCv);
+
+      lblLoggedUser.setText(
+          "Logged in as " + currentStudent.getName()
+      );
+
+      setStatus("Profile updated successfully.", false);
     }
   }
 
