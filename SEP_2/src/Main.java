@@ -13,11 +13,19 @@ public class Main
           "SEP2_DB_URL", "jdbc:postgresql://localhost:5432/sep2");
   private static final String USER =
       System.getenv().getOrDefault("SEP2_DB_USER", "postgres");
-  private static final String PASSWORD =
-      System.getenv().getOrDefault("SEP2_DB_PASSWORD", "Salta1981");
+  private static final String PASSWORD = getRequiredEnv("SEP2_DB_PASSWORD");
 
   public static Connection getConnection() throws SQLException {
     return DriverManager.getConnection(URL, USER, PASSWORD);
+  }
+
+  private static String getRequiredEnv(String key) {
+    String value = System.getenv(key);
+    if (value == null || value.isBlank()) {
+      throw new IllegalStateException(
+          "Missing required environment variable: " + key);
+    }
+    return value;
   }
 
   public static void main(String[] args) throws SQLException {
