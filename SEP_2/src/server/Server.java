@@ -16,6 +16,9 @@ public class Server {
     ApplicationRepository applicationRepository =
         new ApplicationRepository();
 
+    UserRepository userRepository =
+        new UserRepository();
+
     System.out.println("Server started on port " + PORT + "...");
 
     try (ServerSocket serverSocket = new ServerSocket(PORT)) {
@@ -33,7 +36,8 @@ public class Server {
             new ClientHandler(
                 clientSocket,
                 internshipRepository,
-                applicationRepository
+                applicationRepository,
+                userRepository
             )
         );
 

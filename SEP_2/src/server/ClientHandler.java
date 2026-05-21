@@ -1,7 +1,9 @@
 package server;
 
 import model.Application;
+import model.Company;
 import model.Internship;
+import model.Student;
 
 import java.io.*;
 import java.net.Socket;
@@ -11,15 +13,18 @@ public class ClientHandler implements Runnable {
   private final Socket socket;
   private final InternshipRepository repository;
   private final ApplicationRepository applicationRepository;
+  private final UserRepository userRepository;
 
   public ClientHandler(
       Socket socket,
       InternshipRepository repository,
-      ApplicationRepository applicationRepository
+      ApplicationRepository applicationRepository,
+      UserRepository userRepository
   ) {
     this.socket = socket;
     this.repository = repository;
     this.applicationRepository = applicationRepository;
+    this.userRepository = userRepository;
   }
 
   @Override
@@ -44,6 +49,36 @@ public class ClientHandler implements Runnable {
       String command = (String) commandObj;
 
       switch (command) {
+
+        case "LOGIN_STUDENT":
+          Object studentUsernameObj = in.readObject();
+          Object studentPasswordObj = in.readObject();
+
+          if (studentUsernameObj instanceof String username
+              && studentPasswordObj instanceof String password) {
+            Student student = userRepository.loginStudent(username, password);
+            out.writeObject(student);
+          } else {
+            out.writeObject(null);
+          }
+
+          out.flush();
+          break;
+
+        case "LOGIN_COMPANY":
+          Object companyUsernameObj = in.readObject();
+          Object companyPasswordObj = in.readObject();
+
+          if (companyUsernameObj instanceof String username
+              && companyPasswordObj instanceof String password) {
+            Company company = userRepository.loginCompany(username, password);
+            out.writeObject(company);
+          } else {
+            out.writeObject(null);
+          }
+
+          out.flush();
+          break;
 
         case "GET_ALL":
           out.writeObject(repository.getAll());
@@ -108,21 +143,52 @@ public class ClientHandler implements Runnable {
           out.flush();
           break;
 
-        case "UPDATE_APPLICATION_STATUS":
-          Object appIdObj = in.readObject();
-          Object statusObj = in.readObject();
+        case "GET_APPLICATIONS_BY_COMPANY":
+          Object companyObj = in.readObject();
 
-          if (appIdObj instanceof Integer applicationId
-              && statusObj instanceof String newStatus) {
+          if (companyObj instanceof Integer companyId) {
+            out.writeObject(
+                applicationRepository.getApplicationsByCompany(companyId)
+            );
+          } else {
+            out.writeObject("ERROR");
+          }
+
+          out.flush();
+          break;
+
+        case "UPDATE_APPLICATION_STATUS_FOR_COMPANY":
+          Object companyAppIdObj = in.readObject();
+          Object companyStatusObj = in.readObject();
+          Object statusCompanyObj = in.readObject();
+
+          if (companyAppIdObj instanceof Integer applicationId
+              && companyStatusObj instanceof String newStatus
+              && statusCompanyObj instanceof Integer companyId) {
 
             boolean updated =
-                applicationRepository.updateApplicationStatus(
+                applicationRepository.updateApplicationStatusForCompany(
                     applicationId,
-                    newStatus
+                    newStatus,
+                    companyId
                 );
 
             out.writeObject(updated ? "OK" : "NOT_FOUND");
 
+          } else {
+            out.writeObject("ERROR");
+          }
+
+          out.flush();
+          break;
+
+        case "DELETE_APPLICATION":
+          Object deleteApplicationObj = in.readObject();
+
+          if (deleteApplicationObj instanceof Integer applicationId) {
+            boolean removed =
+                applicationRepository.deleteApplication(applicationId);
+            out.writeObject(removed ? "OK" : "NOT_FOUND");
           } else {
             out.writeObject("ERROR");
           }
