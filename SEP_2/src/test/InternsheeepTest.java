@@ -5,8 +5,10 @@ import model.Internship;
 import model.Student;
 import org.junit.jupiter.api.Test;
 
+import java.net.Socket;
+import java.sql.Connection;
+import server.DatabaseConnection;
 import java.time.LocalDate;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class InternsheeepTest {
@@ -68,24 +70,100 @@ public class InternsheeepTest {
 
   assertEquals(student.getStudentId(), application.getStudentId());
   assertEquals(internship.getId(), application.getInternshipId());
+}
+@Test
+  public void testApplicationStatusChange(){
 
+   Application application = new Application(
+       1,
+       1,
+       1,
+       "Pending",
+       LocalDate.of(2026,5,2)
+   );
 
+  // initial status
+   assertEquals("Pending", application.getStatus());
 
+// Change to Accepted
+    application.updateStatus("Accepted");
+    assertEquals("Accepted", application.getStatus());
+
+    // Chance to Rejected
+
+    application.updateStatus("Rejected");
+    assertEquals("Rejected", application.getStatus());
   }
   @Test
-  public void testUpdateApplicationStatus() {
+  public void testStudentCanApplyForInternship() {
 
-    Application application = new Application(
-
+    Student student = new Student(
         1,
-        1,
-        1,
-        "Pending",
-        LocalDate.of(2026, 5, 2)
+        "Luciana",
+        "luciana@test.com",
+        "1234",
+        "My CV"
     );
 
-    application.setStatus("Accepted");
+    Internship internship = new Internship(
+        1,
+        "Software Internship",
+        "Java project",
+        1,
+        "Aarhus",
+        "Developer",
+        LocalDate.of(2026,6,1),
+        LocalDate.of(2026,12,1),
+        "Available"
+    );
 
-    assertEquals("Accepted", application.getStatus());
+    Application application = new Application(
+        1,
+        student.getStudentId(),
+        internship.getId(),
+        "Pending",
+        LocalDate.of(2026,5,2)
+    );
+
+    // Verify internship is available
+    assertEquals("Available", internship.getStatus());
+
+    // Verify correct student applied
+    assertEquals(student.getStudentId(), application.getStudentId());
+
+    // Verify correct internship was selected
+    assertEquals(internship.getId(), application.getInternshipId());
+
+    // Verify application starts as pending
+    assertEquals("Pending", application.getStatus());
+  }
+  @Test
+  public void testDatabaseConnection() {
+
+    try {
+      Connection connection = DatabaseConnection.getConnection();
+
+      assertNotNull(connection);
+      assertFalse(connection.isClosed());
+
+      connection.close();
+
+    } catch (Exception e) {
+      fail("Database connection failed");
+    }
+  }
+  @Test
+  public void testSocketConnection() {
+
+    try {
+      Socket socket = new Socket("localhost", 9090);
+
+      assertTrue(socket.isConnected());
+
+      socket.close();
+
+    } catch (Exception e) {
+      fail("Socket connection failed");
+    }
   }
 }
