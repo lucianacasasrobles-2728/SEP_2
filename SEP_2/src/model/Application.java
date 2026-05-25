@@ -10,16 +10,37 @@
       private int internshipId;
       private String status;
       private LocalDate applicationDate;
+      private String studentName;
+      private int studentAge;
+      private String university;
+      private String workingExperience;
+      private String personalityTraits;
 
       public Application(int applicationId, int studentId,
           int internshipId, String status,
           LocalDate applicationDate) {
+
+        this(applicationId, studentId, internshipId, status,
+            applicationDate, "", 0, "", "", "");
+      }
+
+      public Application(int applicationId, int studentId,
+          int internshipId, String status,
+          LocalDate applicationDate,
+          String studentName, int studentAge,
+          String university, String workingExperience,
+          String personalityTraits) {
 
         this.applicationId = applicationId;
         this.studentId = studentId;
         this.internshipId = internshipId;
         this.status = status;
         this.applicationDate = applicationDate;
+        this.studentName = studentName;
+        this.studentAge = studentAge;
+        this.university = university;
+        this.workingExperience = workingExperience;
+        this.personalityTraits = personalityTraits;
       }
 
       public int getApplicationId() {
@@ -60,6 +81,46 @@
 
       public void setApplicationDate(LocalDate applicationDate) {
         this.applicationDate = applicationDate;
+      }
+
+      public String getStudentName() {
+        return studentName;
+      }
+
+      public void setStudentName(String studentName) {
+        this.studentName = studentName;
+      }
+
+      public int getStudentAge() {
+        return studentAge;
+      }
+
+      public void setStudentAge(int studentAge) {
+        this.studentAge = studentAge;
+      }
+
+      public String getUniversity() {
+        return university;
+      }
+
+      public void setUniversity(String university) {
+        this.university = university;
+      }
+
+      public String getWorkingExperience() {
+        return workingExperience;
+      }
+
+      public void setWorkingExperience(String workingExperience) {
+        this.workingExperience = workingExperience;
+      }
+
+      public String getPersonalityTraits() {
+        return personalityTraits;
+      }
+
+      public void setPersonalityTraits(String personalityTraits) {
+        this.personalityTraits = personalityTraits;
       }
 
       public void applyForInternship() {
