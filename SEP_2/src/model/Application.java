@@ -132,6 +132,9 @@
       }
 
       public void updateStatus(String newStatus) {
+        if (newStatus == null) {
+          throw new IllegalArgumentException("status must not be null");
+        }
         this.status = newStatus;
         System.out.println("Status updated to: " + status);
       }

@@ -1,0 +1,247 @@
+@startuml SEP_2 Class Diagram
+
+' ==========================================================
+' CONFIGURATION & STYLING
+' ==========================================================
+skinparam {
+  classAttributeIconSize 0
+  classFontStyle bold
+  packageStyle rectangle
+  linetype ortho
+  shadowing false
+  roundcorner 10
+  
+  ' Colors for packages
+  PackageBackgroundColor<<Model>> #D5E8D4
+  PackageBorderColor<<Model>> #82B366
+  PackageBackgroundColor<<Server>> #DAE8FC
+  PackageBorderColor<<Server>> #6C8EBF
+  PackageBackgroundColor<<Client>> #FFF2CC
+  PackageBorderColor<<Client>> #D6B656
+}
+
+hide circle
+left to right direction
+
+' ==========================================================
+' MODEL package - Data Entities
+' ==========================================================
+package "model" <<Model>> {
+
+  class Student <<Serializable>> {
+    - studentId : int
+    - name : String
+    - email : String
+    - password : String
+    - cv : String
+    - age : int
+    - university : String
+    - workingExperience : String
+    - personalityTraits : String
+    --
+    + getStudentId() : int
+    + getName() : String
+    + getEmail() : String
+    + getCv() : String
+    + getAge() : int
+    + getUniversity() : String
+    + getWorkingExperience() : String
+    + getPersonalityTraits() : String
+    + login(email, password) : boolean
+    + logout() : void
+    + browseInternships() : void
+    + applyForInternship() : void
+    + receiveNotification() : void
+  }
+
+  class Company <<Serializable>> {
+    - companyId : int
+    - companyName : String
+    - email : String
+    - password : String
+    - description : String
+    --
+    + getCompanyId() : int
+    + getCompanyName() : String
+    + getEmail() : String
+    + getDescription() : String
+    + login(email, password) : boolean
+    + logout() : void
+    + addInternship() : void
+    + deleteInternship() : void
+    + viewApplications() : void
+  }
+
+  class Internship <<Serializable>> {
+    - id : int
+    - title : String
+    - description : String
+    - companyId : int
+    - location : String
+    - position : String
+    - startDate : LocalDate
+    - endDate : LocalDate
+    - status : String
+    --
+    + getId() : int
+    + getTitle() : String
+    + getDescription() : String
+    + getCompanyId() : int
+    + getLocation() : String
+    + getPosition() : String
+    + getStartDate() : LocalDate
+    + getEndDate() : LocalDate
+    + getStatus() : String
+  }
+
+  class Application <<Serializable>> {
+    - applicationId : int
+    - studentId : int
+    - internshipId : int
+    - status : String
+    - applicationDate : LocalDate
+    - studentName : String
+    - studentAge : int
+    - university : String
+    - workingExperience : String
+    - personalityTraits : String
+    --
+    + getApplicationId() : int
+    + getStudentId() : int
+    + getInternshipId() : int
+    + getStatus() : String
+    + getApplicationDate() : LocalDate
+    + getStudentName() : String
+    + getStudentAge() : int
+    + getUniversity() : String
+    + getWorkingExperience() : String
+    + getPersonalityTraits() : String
+    + applyForInternship() : void
+    + checkStatus() : void
+    + updateStatus(newStatus) : void
+  }
+
+  class UniversityMember {
+    - universityMemberId : int
+    - name : String
+    - email : String
+    - role : String
+    --
+    + getUniversityMemberId() : int
+    + getName() : String
+    + getEmail() : String
+    + getRole() : String
+    + monitorStudentProgress() : void
+    + viewActiveCompanies() : void
+  }
+}
+
+' ==========================================================
+' SERVER package - Logic & Data Access
+' ==========================================================
+package "server" <<Server>> {
+
+  class Server {
+    - {static} PORT : int = 9090
+    --
+    + {static} main(args) : void
+  }
+
+  class ClientHandler <<Runnable>> {
+    - socket : Socket
+    --
+    + run() : void
+  }
+
+  class DatabaseConnection {
+    - {static} URL : String
+    - {static} USER : String
+    - {static} PASSWORD : String
+    --
+    + {static} getConnection() : Connection
+  }
+
+  class UserRepository <<Repository>> {
+    + loginStudent(username, password) : Student
+    + loginCompany(username, password) : Company
+  }
+
+  class InternshipRepository <<Repository>> {
+    + getAll() : List<Internship>
+    + add(internship) : void
+    + delete(id) : boolean
+  }
+
+  class ApplicationRepository <<Repository>> {
+    + addApplication(application) : boolean
+    + getAllApplications() : List<Application>
+    + getApplicationsByStudent(id) : List<Application>
+    + getApplicationsByCompany(id) : List<Application>
+    + updateApplicationStatusForCompany(...) : boolean
+    + deleteApplication(id) : boolean
+  }
+
+  class UniversityMemberRepository <<Repository>> {
+    + getAll() : List<UniversityMember>
+  }
+}
+
+' ==========================================================
+' CLIENT package - UI & Network Proxy
+' ==========================================================
+package "client" <<Client>> {
+
+  class Client {
+    - {static} HOST : String
+    - {static} PORT : int
+    --
+    + loginStudent(username, password) : Student
+    + loginCompany(username, password) : Company
+    + getAll() : List<Internship>
+    + add(internship) : boolean
+    + delete(id) : boolean
+    + apply(application) : boolean
+    + getApplicationsByStudent(id) : List<Application>
+    + getApplicationsByCompany(id) : List<Application>
+    + updateApplicationStatusForCompany(...) : boolean
+    + deleteApplication(id) : boolean
+  }
+
+  class StudentGUI <<JFrame>>
+  class CompanyGUI <<JFrame>>
+  class UniversityMemberGUI <<JFrame>>
+}
+
+' ==========================================================
+' RELATIONSHIPS & ASSOCIATIONS
+' ==========================================================
+
+' Domain associations with multiplicities
+Company "1" -- "0..*" Internship : posts >
+Student "1" -- "0..*" Application : submits >
+Internship "1" -- "0..*" Application : receives >
+
+' Server side composition and usage
+Server "1" *-- "0..*" ClientHandler : manages >
+ClientHandler ..> UserRepository : uses
+ClientHandler ..> InternshipRepository : uses
+ClientHandler ..> ApplicationRepository : uses
+ClientHandler ..> UniversityMemberRepository : uses
+
+' Repository to Database connection
+UserRepository ..> DatabaseConnection : connects via
+InternshipRepository ..> DatabaseConnection : connects via
+ApplicationRepository ..> DatabaseConnection : connects via
+UniversityMemberRepository ..> DatabaseConnection : connects via
+
+' Client side UI interaction
+StudentGUI --> Client : requests
+CompanyGUI --> Client : requests
+UniversityMemberGUI --> Client : requests
+
+' Note on Architecture
+note top of model : Domain objects exchanged between Client and Server
+note bottom of server : Backend logic and persistence layer (PostgreSQL)
+note bottom of client : Swing-based Frontend and network communication
+
+@enduml
