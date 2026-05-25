@@ -132,7 +132,7 @@ public class ApplicationRepository {
   public boolean updateApplicationStatus(int applicationId, String newStatus) {
 
     String sql = """
-        UPDATE applications
+        UPDATE application
         SET status = ?
         WHERE application_id = ?
         """;
@@ -358,7 +358,7 @@ public class ApplicationRepository {
 
     String sql = """
         SELECT internship_id
-        FROM applications
+        FROM application
         WHERE application_id = ?
         """;
 
@@ -380,7 +380,7 @@ public class ApplicationRepository {
 
     String sql = """
         SELECT 1
-        FROM applications
+        FROM application
         WHERE internship_id = ?
           AND LOWER(status) = 'accepted'
         LIMIT 1
@@ -403,7 +403,7 @@ public class ApplicationRepository {
 
     String sql = """
         SELECT 1
-        FROM applications
+        FROM application
         WHERE internship_id = ?
           AND application_id <> ?
           AND LOWER(status) = 'accepted'
@@ -427,7 +427,7 @@ public class ApplicationRepository {
   ) throws SQLException {
 
     String sql = """
-        UPDATE applications
+        UPDATE application
         SET status = 'Rejected'
         WHERE internship_id = ?
           AND application_id <> ?

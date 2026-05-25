@@ -138,7 +138,7 @@ public class UserRepository {
   private void ensureDefaultStudents(Connection connection) throws SQLException {
     saveStudent(
         connection,
-        "Thor",
+        "thor@email.com",
         "123",
         "Thor",
         "Petersen",
@@ -150,7 +150,7 @@ public class UserRepository {
     );
     saveStudent(
         connection,
-        "Lars",
+        "lars@email.com",
         "123",
         "Lars",
         "Larsen",
