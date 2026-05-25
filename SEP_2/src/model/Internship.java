@@ -19,6 +19,10 @@ public class Internship implements Serializable {
       String location, String position,
       LocalDate startDate, LocalDate endDate, String status) {
 
+    if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+      throw new IllegalArgumentException("endDate must not be before startDate");
+    }
+
     this.id = id;
     this.title = title;
     this.description = description;
