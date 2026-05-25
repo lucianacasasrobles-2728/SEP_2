@@ -10,7 +10,7 @@ skinparam {
   linetype ortho
   shadowing false
   roundcorner 10
-  
+
   ' Colors for packages
   PackageBackgroundColor<<Model>> #D5E8D4
   PackageBorderColor<<Model>> #82B366
@@ -29,6 +29,7 @@ left to right direction
 package "model" <<Model>> {
 
   class Student <<Serializable>> {
+    - serialVersionUID : long = 1L
     - studentId : int
     - name : String
     - email : String
@@ -39,6 +40,11 @@ package "model" <<Model>> {
     - workingExperience : String
     - personalityTraits : String
     --
+    + Student(studentId:int, name:String, email:String, password:String, cv:String)
+    + Student(studentId:int, name:String, email:String, password:String, cv:String, age:int, university:String, workingExperience:String, personalityTraits:String)
+    --
+    + login(email:String, password:String) : boolean
+    + logout() : void
     + getStudentId() : int
     + getName() : String
     + getEmail() : String
@@ -47,25 +53,36 @@ package "model" <<Model>> {
     + getUniversity() : String
     + getWorkingExperience() : String
     + getPersonalityTraits() : String
-    + login(email, password) : boolean
-    + logout() : void
+    + setStudentId(studentId:int) : void
+    + setName(name:String) : void
+    + setEmail(email:String) : void
+    + setCv(cv:String) : void
+    + setAge(age:int) : void
+    + setUniversity(university:String) : void
+    + setWorkingExperience(workingExperience:String) : void
+    + setPersonalityTraits(personalityTraits:String) : void
     + browseInternships() : void
+    + clickApply() : void
+    + confirmApplication() : void
     + applyForInternship() : void
     + receiveNotification() : void
   }
 
   class Company <<Serializable>> {
+    - serialVersionUID : long = 1L
     - companyId : int
     - companyName : String
     - email : String
     - password : String
     - description : String
     --
+    + Company(companyId:int, companyName:String, email:String, password:String, description:String)
+    --
     + getCompanyId() : int
     + getCompanyName() : String
     + getEmail() : String
     + getDescription() : String
-    + login(email, password) : boolean
+    + login(email:String, password:String) : boolean
     + logout() : void
     + addInternship() : void
     + deleteInternship() : void
@@ -83,15 +100,26 @@ package "model" <<Model>> {
     - endDate : LocalDate
     - status : String
     --
+    + Internship(id:int, title:String, description:String, companyId:int, location:String, position:String, startDate:LocalDate, endDate:LocalDate, status:String)
+    --
     + getId() : int
+    + setId(id:int) : void
     + getTitle() : String
+    + setTitle(title:String) : void
     + getDescription() : String
+    + setDescription(description:String) : void
     + getCompanyId() : int
+    + setCompanyId(companyId:int) : void
     + getLocation() : String
+    + setLocation(location:String) : void
     + getPosition() : String
+    + setPosition(position:String) : void
     + getStartDate() : LocalDate
+    + setStartDate(startDate:LocalDate) : void
     + getEndDate() : LocalDate
+    + setEndDate(endDate:LocalDate) : void
     + getStatus() : String
+    + setStatus(status:String) : void
   }
 
   class Application <<Serializable>> {
@@ -106,19 +134,32 @@ package "model" <<Model>> {
     - workingExperience : String
     - personalityTraits : String
     --
+    + Application(applicationId:int, studentId:int, internshipId:int, status:String, applicationDate:LocalDate)
+    + Application(applicationId:int, studentId:int, internshipId:int, status:String, applicationDate:LocalDate, studentName:String, studentAge:int, university:String, workingExperience:String, personalityTraits:String)
+    --
     + getApplicationId() : int
+    + setApplicationId(applicationId:int) : void
     + getStudentId() : int
+    + setStudentId(studentId:int) : void
     + getInternshipId() : int
+    + setInternshipId(internshipId:int) : void
     + getStatus() : String
+    + setStatus(status:String) : void
     + getApplicationDate() : LocalDate
+    + setApplicationDate(applicationDate:LocalDate) : void
     + getStudentName() : String
+    + setStudentName(studentName:String) : void
     + getStudentAge() : int
+    + setStudentAge(studentAge:int) : void
     + getUniversity() : String
+    + setUniversity(university:String) : void
     + getWorkingExperience() : String
+    + setWorkingExperience(workingExperience:String) : void
     + getPersonalityTraits() : String
+    + setPersonalityTraits(personalityTraits:String) : void
     + applyForInternship() : void
     + checkStatus() : void
-    + updateStatus(newStatus) : void
+    + updateStatus(newStatus:String) : void
   }
 
   class UniversityMember {
@@ -126,6 +167,8 @@ package "model" <<Model>> {
     - name : String
     - email : String
     - role : String
+    --
+    + UniversityMember(universityMemberId:int, name:String, email:String, role:String)
     --
     + getUniversityMemberId() : int
     + getName() : String
@@ -149,7 +192,11 @@ package "server" <<Server>> {
 
   class ClientHandler <<Runnable>> {
     - socket : Socket
+    - repository : InternshipRepository
+    - applicationRepository : ApplicationRepository
+    - userRepository : UserRepository
     --
+    + ClientHandler(socket:Socket, repository:InternshipRepository, applicationRepository:ApplicationRepository, userRepository:UserRepository)
     + run() : void
   }
 
@@ -162,23 +209,23 @@ package "server" <<Server>> {
   }
 
   class UserRepository <<Repository>> {
-    + loginStudent(username, password) : Student
-    + loginCompany(username, password) : Company
+    + loginStudent(username:String, password:String) : Student
+    + loginCompany(username:String, password:String) : Company
   }
 
   class InternshipRepository <<Repository>> {
     + getAll() : List<Internship>
-    + add(internship) : void
-    + delete(id) : boolean
+    + add(internship:Internship) : void
+    + delete(id:int) : boolean
   }
 
   class ApplicationRepository <<Repository>> {
-    + addApplication(application) : boolean
+    + addApplication(application:Application) : boolean
     + getAllApplications() : List<Application>
-    + getApplicationsByStudent(id) : List<Application>
-    + getApplicationsByCompany(id) : List<Application>
-    + updateApplicationStatusForCompany(...) : boolean
-    + deleteApplication(id) : boolean
+    + getApplicationsByStudent(studentId:int) : List<Application>
+    + getApplicationsByCompany(companyId:int) : List<Application>
+    + updateApplicationStatusForCompany(applicationId:int, newStatus:String, companyId:int) : boolean
+    + deleteApplication(applicationId:int) : boolean
   }
 
   class UniversityMemberRepository <<Repository>> {
@@ -195,21 +242,67 @@ package "client" <<Client>> {
     - {static} HOST : String
     - {static} PORT : int
     --
-    + loginStudent(username, password) : Student
-    + loginCompany(username, password) : Company
+    + loginStudent(username:String, password:String) : Student
+    + loginCompany(username:String, password:String) : Company
     + getAll() : List<Internship>
-    + add(internship) : boolean
-    + delete(id) : boolean
-    + apply(application) : boolean
-    + getApplicationsByStudent(id) : List<Application>
-    + getApplicationsByCompany(id) : List<Application>
-    + updateApplicationStatusForCompany(...) : boolean
-    + deleteApplication(id) : boolean
+    + add(internship:Internship) : boolean
+    + delete(id:int) : boolean
+    + apply(application:Application) : boolean
+    + getApplicationsByStudent(studentId:int) : List<Application>
+    + getAllApplications() : List<Application>
+    + getApplicationsByCompany(companyId:int) : List<Application>
+    + updateApplicationStatusForCompany(applicationId:int, newStatus:String, companyId:int) : boolean
+    + deleteApplication(applicationId:int) : boolean
   }
 
-  class StudentGUI <<JFrame>>
-  class CompanyGUI <<JFrame>>
-  class UniversityMemberGUI <<JFrame>>
+  class StudentGUI <<JFrame>> {
+    - client : Client
+    - currentStudent : Student
+    - loggedIn : boolean
+    - table : JTable
+    - tableModel : DefaultTableModel
+    - tfEmail : JTextField
+    - pfPassword : JPasswordField
+    - lblStatus : JLabel
+    - lblLoggedUser : JLabel
+    --
+    + StudentGUI()
+  }
+
+  class CompanyGUI <<JFrame>> {
+    - client : Client
+    - currentCompany : Company
+    - loggedIn : boolean
+    - table : JTable
+    - tableModel : DefaultTableModel
+    - tfEmail : JTextField
+    - pfPassword : JPasswordField
+    - lblLoggedCompany : JLabel
+    - tfTitle : JTextField
+    - tfDescription : JTextField
+    - tfCompanyId : JTextField
+    - tfLocation : JTextField
+    - tfPosition : JTextField
+    - tfStartDate : JTextField
+    - tfEndDate : JTextField
+    - tfStatus : JTextField
+    - lblStatus : JLabel
+    --
+    + CompanyGUI()
+  }
+
+  class UniversityMemberGUI <<JFrame>> {
+    - repository : UniversityMemberRepository
+    - table : JTable
+    - tableModel : DefaultTableModel
+    - tfEmail : JTextField
+    - pfPassword : JPasswordField
+    - lblLoggedUser : JLabel
+    - lblStatus : JLabel
+    - loggedIn : boolean
+    --
+    + UniversityMemberGUI()
+  }
 }
 
 ' ==========================================================
@@ -221,23 +314,28 @@ Company "1" -- "0..*" Internship : posts >
 Student "1" -- "0..*" Application : submits >
 Internship "1" -- "0..*" Application : receives >
 
+' Client <-> Model usage (important in this repo: serialization over sockets)
+Client ..> Student
+Client ..> Company
+Client ..> Internship
+Client ..> Application
+
+StudentGUI --> Client : requests
+CompanyGUI --> Client : requests
+
+' NOTE: UniversityMemberGUI currently uses UniversityMemberRepository directly (no sockets)
+UniversityMemberGUI --> UniversityMemberRepository : uses
+
 ' Server side composition and usage
 Server "1" *-- "0..*" ClientHandler : manages >
 ClientHandler ..> UserRepository : uses
 ClientHandler ..> InternshipRepository : uses
 ClientHandler ..> ApplicationRepository : uses
-ClientHandler ..> UniversityMemberRepository : uses
 
-' Repository to Database connection
 UserRepository ..> DatabaseConnection : connects via
 InternshipRepository ..> DatabaseConnection : connects via
 ApplicationRepository ..> DatabaseConnection : connects via
 UniversityMemberRepository ..> DatabaseConnection : connects via
-
-' Client side UI interaction
-StudentGUI --> Client : requests
-CompanyGUI --> Client : requests
-UniversityMemberGUI --> Client : requests
 
 ' Note on Architecture
 note top of model : Domain objects exchanged between Client and Server
