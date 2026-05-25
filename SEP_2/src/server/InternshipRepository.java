@@ -24,7 +24,7 @@ public class InternshipRepository {
                CASE
                  WHEN EXISTS (
                    SELECT 1
-                   FROM applications a
+                   FROM application a
                    WHERE a.internship_id = i.internship_id
                      AND LOWER(a.status) = 'accepted'
                  )

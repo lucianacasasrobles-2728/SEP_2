@@ -30,14 +30,6 @@ public class StudentGUI extends JFrame {
 
     super("Student Internship Portal");
 
-    currentStudent = new Student(
-        1,
-        "Luciana",
-        "luciana@email.com",
-        "1234",
-        "My CV"
-    );
-
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(850, 550);
     setLocationRelativeTo(null);
@@ -95,11 +87,13 @@ public class StudentGUI extends JFrame {
     JButton btnRefresh = new JButton("Refresh");
     JButton btnApply = new JButton("Apply Selected");
     JButton btnViewApplications = new JButton("View My Applications");
+    JButton btnEditProfile = new JButton("Edit Profile");
 
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     buttonPanel.add(btnRefresh);
     buttonPanel.add(btnApply);
     buttonPanel.add(btnViewApplications);
+    buttonPanel.add(btnEditProfile);
 
     lblStatus = new JLabel("Ready.");
 
@@ -114,6 +108,7 @@ public class StudentGUI extends JFrame {
     btnRefresh.addActionListener(e -> loadInternships());
     btnApply.addActionListener(e -> applySelectedInternship());
     btnViewApplications.addActionListener(e -> viewMyApplications());
+    btnEditProfile.addActionListener(e -> editProfile());
   }
 
   private void loginStudent() {
@@ -121,22 +116,34 @@ public class StudentGUI extends JFrame {
     String email = tfEmail.getText().trim();
     String password = new String(pfPassword.getPassword());
 
-    boolean success = currentStudent.login(email, password);
+    try {
+      Student matchingStudent = client.loginStudent(email, password);
 
-    if (success) {
-      loggedIn = true;
-      lblLoggedUser.setText("Logged in as " + currentStudent.getName());
-      setStatus("Login successful.", false);
-    } else {
+      if (matchingStudent != null) {
+        currentStudent = matchingStudent;
+        loggedIn = true;
+        lblLoggedUser.setText("Logged in as " + currentStudent.getName());
+        setStatus("Login successful.", false);
+      } else {
+        loggedIn = false;
+        lblLoggedUser.setText("Not logged in");
+        setStatus("Wrong email or password.", true);
+      }
+
+    } catch (Exception e) {
       loggedIn = false;
       lblLoggedUser.setText("Not logged in");
-      setStatus("Wrong email or password.", true);
+      setStatus("Login error: " + e.getMessage(), true);
     }
   }
 
   private void logoutStudent() {
 
-    currentStudent.logout();
+    if (currentStudent != null) {
+      currentStudent.logout();
+    }
+
+    currentStudent = null;
     loggedIn = false;
 
     tfEmail.setText("");
@@ -198,7 +205,12 @@ public class StudentGUI extends JFrame {
         currentStudent.getStudentId(),
         internshipId,
         "Pending",
-        LocalDate.now()
+        LocalDate.now(),
+        currentStudent.getName(),
+        currentStudent.getAge(),
+        currentStudent.getUniversity(),
+        currentStudent.getWorkingExperience(),
+        currentStudent.getPersonalityTraits()
     );
 
     try {
@@ -272,6 +284,74 @@ public class StudentGUI extends JFrame {
 
     } catch (Exception e) {
       setStatus("Error loading applications: " + e.getMessage(), true);
+    }
+  }
+
+  private void editProfile() {
+
+    if (!loggedIn) {
+      setStatus("You must login first.", true);
+      return;
+    }
+
+    JTextField nameField =
+        new JTextField(currentStudent.getName());
+
+    JTextField emailField =
+        new JTextField(currentStudent.getEmail());
+
+    JTextField cvField =
+        new JTextField(currentStudent.getCv());
+
+    JPanel panel =
+        new JPanel(new GridLayout(3, 2, 5, 5));
+
+    panel.add(new JLabel("Name:"));
+    panel.add(nameField);
+
+    panel.add(new JLabel("Email:"));
+    panel.add(emailField);
+
+    panel.add(new JLabel("CV:"));
+    panel.add(cvField);
+
+    int result =
+        JOptionPane.showConfirmDialog(
+            this,
+            panel,
+            "Edit Profile",
+            JOptionPane.OK_CANCEL_OPTION,
+            JOptionPane.PLAIN_MESSAGE
+        );
+
+    if (result == JOptionPane.OK_OPTION) {
+
+      String newName =
+          nameField.getText().trim();
+
+      String newEmail =
+          emailField.getText().trim();
+
+      String newCv =
+          cvField.getText().trim();
+
+      if (newName.isEmpty()
+          || newEmail.isEmpty()
+          || newCv.isEmpty()) {
+
+        setStatus("Profile fields cannot be empty.", true);
+        return;
+      }
+
+      currentStudent.setName(newName);
+      currentStudent.setEmail(newEmail);
+      currentStudent.setCv(newCv);
+
+      lblLoggedUser.setText(
+          "Logged in as " + currentStudent.getName()
+      );
+
+      setStatus("Profile updated successfully.", false);
     }
   }
 

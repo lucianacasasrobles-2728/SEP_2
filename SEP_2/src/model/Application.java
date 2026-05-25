@@ -1,77 +1,138 @@
-package model;
+    package model;
 
-import java.io.Serializable;
-import java.time.LocalDate;
+    import java.io.Serializable;
+    import java.time.LocalDate;
 
-public class Application implements Serializable {
+    public class Application implements Serializable {
 
-  private int applicationId;
-  private int studentId;
-  private int internshipId;
-  private String status;
-  private LocalDate applicationDate;
+      private int applicationId;
+      private int studentId;
+      private int internshipId;
+      private String status;
+      private LocalDate applicationDate;
+      private String studentName;
+      private int studentAge;
+      private String university;
+      private String workingExperience;
+      private String personalityTraits;
 
-  public Application(int applicationId, int studentId,
-      int internshipId, String status,
-      LocalDate applicationDate) {
+      public Application(int applicationId, int studentId,
+          int internshipId, String status,
+          LocalDate applicationDate) {
 
-    this.applicationId = applicationId;
-    this.studentId = studentId;
-    this.internshipId = internshipId;
-    this.status = status;
-    this.applicationDate = applicationDate;
-  }
+        this(applicationId, studentId, internshipId, status,
+            applicationDate, "", 0, "", "", "");
+      }
 
-  public int getApplicationId() {
-    return applicationId;
-  }
+      public Application(int applicationId, int studentId,
+          int internshipId, String status,
+          LocalDate applicationDate,
+          String studentName, int studentAge,
+          String university, String workingExperience,
+          String personalityTraits) {
 
-  public void setApplicationId(int applicationId) {
-    this.applicationId = applicationId;
-  }
+        this.applicationId = applicationId;
+        this.studentId = studentId;
+        this.internshipId = internshipId;
+        this.status = status;
+        this.applicationDate = applicationDate;
+        this.studentName = studentName;
+        this.studentAge = studentAge;
+        this.university = university;
+        this.workingExperience = workingExperience;
+        this.personalityTraits = personalityTraits;
+      }
 
-  public int getStudentId() {
-    return studentId;
-  }
+      public int getApplicationId() {
+        return applicationId;
+      }
 
-  public void setStudentId(int studentId) {
-    this.studentId = studentId;
-  }
+      public void setApplicationId(int applicationId) {
+        this.applicationId = applicationId;
+      }
 
-  public int getInternshipId() {
-    return internshipId;
-  }
+      public int getStudentId() {
+        return studentId;
+      }
 
-  public void setInternshipId(int internshipId) {
-    this.internshipId = internshipId;
-  }
+      public void setStudentId(int studentId) {
+        this.studentId = studentId;
+      }
 
-  public String getStatus() {
-    return status;
-  }
+      public int getInternshipId() {
+        return internshipId;
+      }
 
-  public void setStatus(String status) {
-    this.status = status;
-  }
+      public void setInternshipId(int internshipId) {
+        this.internshipId = internshipId;
+      }
 
-  public LocalDate getApplicationDate() {
-    return applicationDate;
-  }
+      public String getStatus() {
+        return status;
+      }
 
-  public void setApplicationDate(LocalDate applicationDate) {
-    this.applicationDate = applicationDate;
-  }
+      public void setStatus(String status) {
+        this.status = status;
+      }
 
-  public void applyForInternship() {
-    System.out.println("Application submitted.");
-  }
+      public LocalDate getApplicationDate() {
+        return applicationDate;
+      }
 
-  public void checkStatus() {
-    System.out.println("Application status: " + status);
-  }
+      public void setApplicationDate(LocalDate applicationDate) {
+        this.applicationDate = applicationDate;
+      }
 
-  public void updateStatus(String newStatus) {
-    this.status = newStatus;
-    System.out.println("Status updated to: " + status);
-  }
-}
+      public String getStudentName() {
+        return studentName;
+      }
+
+      public void setStudentName(String studentName) {
+        this.studentName = studentName;
+      }
+
+      public int getStudentAge() {
+        return studentAge;
+      }
+
+      public void setStudentAge(int studentAge) {
+        this.studentAge = studentAge;
+      }
+
+      public String getUniversity() {
+        return university;
+      }
+
+      public void setUniversity(String university) {
+        this.university = university;
+      }
+
+      public String getWorkingExperience() {
+        return workingExperience;
+      }
+
+      public void setWorkingExperience(String workingExperience) {
+        this.workingExperience = workingExperience;
+      }
+
+      public String getPersonalityTraits() {
+        return personalityTraits;
+      }
+
+      public void setPersonalityTraits(String personalityTraits) {
+        this.personalityTraits = personalityTraits;
+      }
+
+      public void applyForInternship() {
+        System.out.println("Application submitted.");
+      }
+
+      public void checkStatus() {
+        System.out.println("Application status: " + status);
+      }
+
+      public void updateStatus(String newStatus) {
+        this.status = newStatus;
+        System.out.println("Status updated to: " + status);
+      }
+    }
