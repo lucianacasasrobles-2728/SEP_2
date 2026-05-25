@@ -37,7 +37,6 @@ public class Student implements Serializable {
       String workingExperience,
       String personalityTraits
   ) {
-
     if (age < 0) {
       throw new IllegalArgumentException("age must not be negative");
     }
@@ -112,11 +111,9 @@ public class Student implements Serializable {
   }
 
   public void setAge(int age) {
-
     if (age < 0) {
       throw new IllegalArgumentException("age must not be negative");
     }
-
     this.age = age;
   }
 
